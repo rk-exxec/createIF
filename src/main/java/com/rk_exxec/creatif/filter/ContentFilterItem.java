@@ -26,9 +26,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
-public class ContentFilterItem extends FilterItem {
+import java.util.Objects;
 
-    protected ContentFilterItem(Properties properties){
+public class ContentFilterItem extends ListFilterItem {
+
+	public ContentFilterItem(Properties properties){
         super(properties);
     }
 
@@ -69,7 +71,7 @@ public class ContentFilterItem extends FilterItem {
 
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
-		return FilterMenu.create(id, inv, player.getMainHandItem());
+		return ContentFilterMenu.create(id, inv, player.getMainHandItem());
 	}
 
 	@Override
@@ -91,6 +93,39 @@ public class ContentFilterItem extends FilterItem {
 			return new ItemStack[0];
 		return ItemHelper.getNonEmptyStacks(getFilterItemHandler(itemStack)).toArray(ItemStack[]::new);
 	}
+ 
+	public static boolean testDirect(ItemStack filter, ItemStack stack, boolean matchNBT) {
+		if (matchNBT) {
+			if (PackageItem.isPackage(filter) && PackageItem.isPackage(stack))
+				return doPackagesHaveSameData(filter, stack);
 
+			return ItemHandlerHelper.canItemStacksStack(filter, stack);
+		}
+
+		if (PackageItem.isPackage(filter) && PackageItem.isPackage(stack))
+			return true;
+
+		return ItemHelper.sameItem(filter, stack);
+	}
+
+	public static boolean doPackagesHaveSameData(ItemStack a, ItemStack b) {
+		if (a.isEmpty() || a.hasTag() != b.hasTag())
+			return false;
+		if (!a.hasTag())
+			return true;
+		if (!a.areCapsCompatible(b))
+			return false;
+		for (String key : a.getTag()
+			.getAllKeys()) {
+			if (key.equals("Fragment"))
+				continue;
+			if (!Objects.equals(a.getTag()
+					.get(key),
+				b.getTag()
+					.get(key)))
+				return false;
+		}
+		return true;
+	}
 
 }
