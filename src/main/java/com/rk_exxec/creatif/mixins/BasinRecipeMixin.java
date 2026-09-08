@@ -1,5 +1,7 @@
 package com.rk_exxec.creatif.mixins;
 
+import java.util.ArrayList;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,16 +19,20 @@ import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.fluids.FluidStack;
 
 @Mixin(BasinOperatingBlockEntity.class)
-public abstract class BasinRecipeMixin {
+public class BasinRecipeMixin {
 
-    @Shadow private static boolean apply(BasinBlockEntity basin, Recipe<?> recipe, boolean test) {return false;}
+    // @Shadow(remap = false) private static boolean apply(BasinBlockEntity basin, Recipe<?> recipe, boolean test) {return false;}
     
     @Redirect(method = "matchBasinRecipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/processing/basin/BasinRecipe;match(Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;Lnet/minecraft/world/item/crafting/Recipe;)Z"), remap = false)
-	public static boolean match(BasinBlockEntity basin, Recipe<?> recipe) {
+	// @Overwrite(remap = false)
+    private boolean match(BasinBlockEntity basin, Recipe<?> recipe) {
 		FilteringBehaviour filter = basin.getFilter();
 		if (filter == null)
 			return false;
@@ -35,15 +41,25 @@ public abstract class BasinRecipeMixin {
 
         // custom code for checking Input items instead of recipe results
         ItemStack filterStack = filter.getFilter();
-        if(filterStack.getClass().isAssignableFrom(ContentFilterItemStack.class)){
-            filterTest = ((InputFilteringBehaviour)filter).test(recipe.getIngredients());
-            if (recipe instanceof BasinRecipe basinRecipe) {
-                if (basinRecipe.getRollableResults()
-                    .isEmpty()
-                    && !basinRecipe.getFluidResults()
-                    .isEmpty())
-                    filterTest = ((InputFilteringBehaviour)filter).testFluidIngredients(basinRecipe.getFluidIngredients());
+        if(ContentFilterItemStack.class.isAssignableFrom(filterStack.getClass())){
+            NonNullList<ItemStack> inputInv = NonNullList.create();
+            for (int i = 0; i<basin.getInputInventory().getSlots(); i+=1) {
+                inputInv.add(basin.getInputInventory().getStackInSlot(i));
             }
+
+            // NonNullList<FluidStack> fluidInputInv = NonNullList.create();
+            // for (int i = 0; i<basin.getTanks().getFirst().getPrimaryHandler().getCapacity(); i+=1) {
+            //     fluidInputInv.add(basin.getTanks().getFirst().getPrimaryHandler().getFluidInTank(i));
+            // }
+
+            filterTest = ((InputFilteringBehaviour)filter).test(inputInv);
+            // if (recipe instanceof BasinRecipe basinRecipe) {
+            //     if (basinRecipe.getRollableResults()
+            //         .isEmpty()
+            //         && !basinRecipe.getFluidResults()
+            //         .isEmpty())
+            //         filterTest = ((InputFilteringBehaviour)filter).testFluidIngredients(fluidInputInv);
+            // }
         } 
         // Vanilla code
         else { 
@@ -63,6 +79,6 @@ public abstract class BasinRecipeMixin {
 		if (!filterTest)
 			return false;
 
-		return apply(basin, recipe, true);
+		return BasinRecipe.apply(basin, recipe);
 	}
 }

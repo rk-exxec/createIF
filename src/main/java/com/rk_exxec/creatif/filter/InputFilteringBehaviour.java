@@ -19,11 +19,11 @@ public class InputFilteringBehaviour  extends FilteringBehaviour{
         //TODO Auto-generated constructor stub
     }
 
-    public boolean test(NonNullList<Ingredient> list) {
+    public boolean test(NonNullList<ItemStack> list) {
 		return !isActive() || filter.test(blockEntity.getLevel(), list);
 	}
 
-    public boolean testFluidIngredients(NonNullList<FluidIngredient> list) {
+    public boolean testFluidIngredients(NonNullList<FluidStack> list) {
 		return !isActive() || filter.testFluid(blockEntity.getLevel(), list);
 	}
 

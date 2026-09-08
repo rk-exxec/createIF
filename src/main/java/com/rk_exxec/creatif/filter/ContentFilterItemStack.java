@@ -45,17 +45,17 @@ public class ContentFilterItemStack extends FilterItemStack {
             .getBoolean("Match Any");
     }
 
-    public boolean test(Level world, NonNullList<Ingredient> list) {
+    public boolean test(Level world, NonNullList<ItemStack> list) {
         int result=0;
         int total=0;
-        for (Ingredient ingredient : list) {
-            for (ItemStack stack : ingredient.getItems()) {
-                if(test(world, stack, shouldRespectNBT)){
-                    result += 1;
-                }
-                total += 1;
+
+        for (ItemStack stack : list) {
+            if(test(world, stack, shouldRespectNBT)){
+                result += 1;
             }
+            total += 1;
         }
+        
         if(matchAny){
             return result > 0;
         }
@@ -64,17 +64,17 @@ public class ContentFilterItemStack extends FilterItemStack {
         }
     }
 
-    public boolean testFluid(Level world, NonNullList<FluidIngredient> list) {
+    public boolean testFluid(Level world, NonNullList<FluidStack> list) {
         int result=0;
         int total=0;
-        for (FluidIngredient ingredient : list) {
-            for (FluidStack stack : ingredient.getMatchingFluidStacks()) {
-                if(test(world, stack, shouldRespectNBT)){
-                    result += 1;
-                }
-                total += 1;
+
+        for (FluidStack stack : list) {
+            if(test(world, stack, shouldRespectNBT)){
+                result += 1;
             }
+            total += 1;
         }
+        
         if(matchAny){
             return result > 0;
         }
