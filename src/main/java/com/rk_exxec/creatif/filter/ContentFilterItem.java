@@ -75,8 +75,8 @@ public class ContentFilterItem extends ListFilterItem {
 	}
 
 	@Override
-	public FilterItemStack makeStackWrapper(ItemStack filter) {
-		return new ListFilterItemStack(filter);
+	public ContentFilterItemStack makeStackWrapper(ItemStack filter) {
+		return new ContentFilterItemStack(filter);
 	}
 
 	public ItemStackHandler getFilterItemHandler(ItemStack stack) {

@@ -3,6 +3,8 @@ package com.rk_exxec.creatif.filter;
 import java.util.ArrayList;
 
 import java.util.List;
+
+import com.mojang.datafixers.types.Type.TypeError;
 import com.simibubi.create.content.logistics.filter.*;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 
@@ -45,17 +47,29 @@ public class ContentFilterItemStack extends FilterItemStack {
             .getBoolean("Match Any");
     }
 
-    public boolean test(Level world, NonNullList<ItemStack> list) {
+    public <T> boolean test(Level world, NonNullList<T> list) {
         int result=0;
         int total=0;
 
-        for (ItemStack stack : list) {
-            if(test(world, stack, shouldRespectNBT)){
-                result += 1;
+        if(list.get(0) instanceof ItemStack){
+            for (T stack : list) {
+                // calls super class FilteringBehaviour method
+                if(test(world, (ItemStack)stack, shouldRespectNBT)){
+                    result += 1;
+                }
+                total += 1;
             }
-            total += 1;
         }
-        
+        else if(list.get(0) instanceof FluidStack){
+            for (T stack : list) {
+                if(test(world, (FluidStack)stack, shouldRespectNBT)){
+                    result += 1;
+                }
+                total += 1;
+            }
+        }
+        else throw new IllegalArgumentException("How did we get here? \nContentFilterItemStack.test() was handed a non ItemStack/FluidStack list of items.");
+  
         if(matchAny){
             return result > 0;
         }
