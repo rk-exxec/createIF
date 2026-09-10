@@ -16,6 +16,9 @@ import net.minecraft.world.item.ItemStack;
 
 @Mixin(BasinRecipe.class)
 public class BasinRecipeMixin {
+    // TODO: inject on return(second and tail sibnce you can use ordinals?) https://mixins.microcontrollers.dev/mixinextras/modifyreturnvalue/
+    // TODO: oder nochmal match wrappen weil hat ja wrsl am filter type nicht assigned gelegen
+
     @WrapOperation(method = "match", remap = false,
         at = @At(value = "INVOKE",
         target = "Lcom/simibubi/create/foundation/blockEntity/behaviour/filtering/FilteringBehaviour;test(Lnet/minecraft/world/item/ItemStack;)Z"
