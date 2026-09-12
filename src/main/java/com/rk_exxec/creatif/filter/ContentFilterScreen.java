@@ -16,6 +16,7 @@ import java.util.List;
 public class ContentFilterScreen extends FilterScreen {
 
     private IconButton matchAnyButton;
+    private IconButton matchAllButton;
 
     public ContentFilterScreen(ContentFilterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -25,14 +26,31 @@ public class ContentFilterScreen extends FilterScreen {
     protected void init() {
         super.init();
 
-        matchAnyButton = new IconButton(leftPos + 100, topPos + 75, AllIcons.I_WHITELIST_OR);
+        matchAnyButton = new IconButton(leftPos + 102, topPos + 75, AllIcons.I_WHITELIST_OR);
         matchAnyButton.setToolTip(CreateLang.translateDirect("gui.creatif.match_any"));
         matchAnyButton.withCallback(() -> {
             ContentFilterMenu menu = (ContentFilterMenu) this.menu;
-            menu.matchAny = !menu.matchAny;
+            menu.matchAny = true;
+            updateButtons();
             SetMatchAnyPacket.send(menu.containerId, menu.matchAny);
         });
         addRenderableWidgets(matchAnyButton);
+
+        matchAllButton = new IconButton(leftPos + 120, topPos + 75, AllIcons.I_WHITELIST_AND);
+        matchAllButton.setToolTip(CreateLang.translateDirect("gui.creatif.match_all"));
+        matchAllButton.withCallback(() -> {
+            ContentFilterMenu menu = (ContentFilterMenu) this.menu;
+            menu.matchAny = false;
+            updateButtons();
+            SetMatchAnyPacket.send(menu.containerId, menu.matchAny);
+        });
+        addRenderableWidgets(matchAllButton);
+    }
+
+    private void updateButtons(){
+        ContentFilterMenu menu = (ContentFilterMenu) this.menu;
+        matchAnyButton.setFocused(menu.matchAny);
+        matchAllButton.setFocused(!menu.matchAny);
     }
 
     @Override
@@ -48,6 +66,8 @@ public class ContentFilterScreen extends FilterScreen {
         List<MutableComponent> descriptions = new ArrayList<>(super.getTooltipDescriptions());
         if (matchAnyButton != null)
             descriptions.add(CreateLang.translateDirect("gui.creatif.match_any.description"));
+        if (matchAllButton != null)
+            descriptions.add(CreateLang.translateDirect("gui.creatif.match_all.description"));
         return descriptions;
     }
 
@@ -55,6 +75,8 @@ public class ContentFilterScreen extends FilterScreen {
     protected boolean isButtonEnabled(IconButton button) {
         if (button == matchAnyButton)
             return ((ContentFilterMenu) menu).matchAny;
+        if (button == matchAllButton)
+            return !((ContentFilterMenu) menu).matchAny;
         return super.isButtonEnabled(button);
     }
 }
