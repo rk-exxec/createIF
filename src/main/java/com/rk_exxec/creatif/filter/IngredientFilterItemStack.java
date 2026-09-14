@@ -6,7 +6,7 @@ import java.util.List;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.mojang.datafixers.types.Type.TypeError;
-import com.rk_exxec.creatif.CreateContentFilter;
+import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.simibubi.create.content.logistics.filter.*;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 
@@ -24,13 +24,13 @@ import net.minecraftforge.items.ItemStackHandler;
 // @Mixin(FilterItemStack.class)
 // public class FilterItemStackMixin {
 
-    public class ContentFilterItemStack extends FilterItemStack.ListFilterItemStack{ 
+    public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemStack{ 
         // public List<FilterItemStack> containedItems;
         // public boolean shouldRespectNBT;
         // public boolean isBlacklist;
         public boolean matchAny;
 
-        public ContentFilterItemStack(ItemStack filter) {
+        public IngredientFilterItemStack(ItemStack filter) {
             super(filter);
             boolean defaults = !filter.hasTag();
             matchAny = defaults ? false
@@ -38,44 +38,42 @@ import net.minecraftforge.items.ItemStackHandler;
                 .getBoolean("Match Any");
         }
 
-        public <T> boolean test(Level world, NonNullList<T> list) {
+        public <T> boolean test(Level world, NonNullList<ItemStack> itemStacks, NonNullList<FluidStack> fluidStacks) {
             int result=0;
             int total=0;
-            CreateContentFilter.LOGGER.debug("Made it to CFIS");
-            CreateContentFilter.LOGGER.debug(list.toString());
-            if(list.get(0) instanceof ItemStack){
-                for (T stack : list) {
-                    CreateContentFilter.LOGGER.debug("Checking list item "+ stack);
-                    //skip air
-                    if(Item.getId(((ItemStack)stack).getItem()) == 0) continue;
-                    // calls super class FilteringBehaviour method
-                    if(test(world, (ItemStack)stack, shouldRespectNBT)){
-                        result += 1;
-                        CreateContentFilter.LOGGER.debug("Item "+ stack + " matches");
-                    }
-                    total += 1;
+            // CreateIngredientFilter.LOGGER.debug("Made it to CFIS");
+            // CreateIngredientFilter.LOGGER.debug(list.toString());
+
+            for (ItemStack stack : itemStacks) {
+                // CreateIngredientFilter.LOGGER.debug("Checking list item "+ stack);
+                //skip air
+                if(Item.getId(stack.getItem()) == 0) continue;
+                // calls super class FilteringBehaviour method
+                if(test(world, stack, shouldRespectNBT)){
+                    result += 1;
+                    CreateIngredientFilter.LOGGER.debug("Item "+ stack + " matches");
                 }
+                total += 1;
             }
-            else if(list.get(0) instanceof FluidStack){
-                for (T stack : list) {
-                    CreateContentFilter.LOGGER.debug("Checking list fluid "+ stack);
-                    if(stack == FluidStack.EMPTY) continue;
-                    if(test(world, (FluidStack)stack, shouldRespectNBT)){
-                        result += 1;
-                        CreateContentFilter.LOGGER.debug("Fluid "+ stack + " matches");
-                    }
-                    total += 1;
+        
+
+            for (FluidStack stack : fluidStacks) {
+                // CreateIngredientFilter.LOGGER.debug("Checking list fluid "+ stack);
+                if(stack == FluidStack.EMPTY) continue;
+                if(test(world, stack, shouldRespectNBT)){
+                    result += 1;
+                    CreateIngredientFilter.LOGGER.debug("Fluid "+ stack + " matches");
                 }
+                total += 1;
             }
-            else throw new IllegalArgumentException("How did we get here? \nContentFilterItemStack.test() was handed a non ItemStack/FluidStack list of items.");
             
-            CreateContentFilter.LOGGER.debug(result + " out of " + total);
+            CreateIngredientFilter.LOGGER.debug(result + " out of " + total);
             if(matchAny){
-                CreateContentFilter.LOGGER.debug("Match any");
+                CreateIngredientFilter.LOGGER.debug("Match any");
                 return result > 0;
             }
             else{
-                CreateContentFilter.LOGGER.debug("Match all");
+                CreateIngredientFilter.LOGGER.debug("Match all");
                 return result == total && total > 0;
             }
         }

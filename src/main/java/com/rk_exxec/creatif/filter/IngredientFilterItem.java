@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.rk_exxec.creatif.util.CreatIFLang;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.filter.*;
 import com.simibubi.create.content.logistics.filter.FilterItemStack.AttributeFilterItemStack;
@@ -28,9 +29,9 @@ import net.minecraft.nbt.ListTag;
 
 import java.util.Objects;
 
-public class ContentFilterItem extends ListFilterItem {
+public class IngredientFilterItem extends ListFilterItem {
 
-	public ContentFilterItem(Properties properties){
+	public IngredientFilterItem(Properties properties){
         super(properties);
     }
 
@@ -44,6 +45,11 @@ public class ContentFilterItem extends ListFilterItem {
 		boolean blacklist = filter.getOrCreateTag()
 			.getBoolean("Blacklist");
 
+		boolean matchany = filter.getOrCreateTag().getBoolean("Match Any");
+
+		list.add((matchany ? CreatIFLang.translate("gui","match_any")
+			: CreatIFLang.translate("gui","match_all")).withStyle(ChatFormatting.DARK_AQUA));
+			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));
 		int count = 0;
@@ -67,16 +73,18 @@ public class ContentFilterItem extends ListFilterItem {
 			return Collections.emptyList();
 
 		return list;
+
+		// TODO: add match all or any to summary
 	}
 
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
-		return ContentFilterMenu.create(id, inv, player.getMainHandItem());
+		return IngredientFilterMenu.create(id, inv, player.getMainHandItem());
 	}
 
 	@Override
-	public ContentFilterItemStack makeStackWrapper(ItemStack filter) {
-		return new ContentFilterItemStack(filter);
+	public IngredientFilterItemStack makeStackWrapper(ItemStack filter) {
+		return new IngredientFilterItemStack(filter);
 	}
 
 	public ItemStackHandler getFilterItemHandler(ItemStack stack) {

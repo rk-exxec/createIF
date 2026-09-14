@@ -3,9 +3,9 @@ package com.rk_exxec.creatif.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.rk_exxec.creatif.CreateContentFilter;
-import com.rk_exxec.creatif.filter.ContentFilterItemStack;
-import com.rk_exxec.creatif.filter.IContentFilterBehaviour;
+import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
+import com.rk_exxec.creatif.filter.IIngredientFilterBehaviour;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -27,27 +27,27 @@ import net.minecraftforge.fluids.FluidStack;
 
 
 @Mixin(FilteringBehaviour.class)
-public class ContentFilteringBehaviourMixin extends BlockEntityBehaviour implements ValueSettingsBehaviour, IContentFilterBehaviour {
+public class IngredientFilteringBehaviourMixin extends BlockEntityBehaviour implements ValueSettingsBehaviour, IIngredientFilterBehaviour {
 
     @Shadow(remap=false) public boolean isActive() {return true;}
 
     @Shadow(remap=false) public FilterItemStack filter;
     // @Shadow(remap=false) public SmartBlockEntity blockEntity;
 
-    // ContentFilterItemStack filter;
+    // IngredientFilterItemStack filter;
 
-    public <T> boolean test(NonNullList<T> list) {
-        if(list.isEmpty()) return false;
+    public <T> boolean test(NonNullList<ItemStack> itemStacks, NonNullList<FluidStack> fluidStacks) {
+        if(itemStacks.isEmpty() && fluidStacks.isEmpty()) return false;
         if(filter == null){
-            CreateContentFilter.LOGGER.debug("filter is null");
+            CreateIngredientFilter.LOGGER.debug("filter is null");
             return  false;
         }
-        ContentFilterItemStack filterItemStack = (ContentFilterItemStack)filter;
-        CreateContentFilter.LOGGER.debug(filterItemStack.toString());
-		return !isActive() || filterItemStack.test(blockEntity.getLevel(), list);
+        IngredientFilterItemStack filterItemStack = (IngredientFilterItemStack)filter;
+        // CreateIngredientFilter.LOGGER.debug(filterItemStack.toString());
+		return !isActive() || filterItemStack.test(blockEntity.getLevel(), itemStacks, fluidStacks);
 	}
 
-    public ContentFilteringBehaviourMixin(SmartBlockEntity be) {
+    public IngredientFilteringBehaviourMixin(SmartBlockEntity be) {
         super(be);
         //TODO Auto-generated constructor stub
     }

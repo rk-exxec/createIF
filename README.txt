@@ -1,3 +1,3 @@
-# Create: ContentFilter
+# Create: IngredientFilter
 
 ---

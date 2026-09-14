@@ -1,0 +1,69 @@
+package com.rk_exxec.creatif.network;
+
+import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.simibubi.create.content.logistics.filter.AttributeFilterMenu;
+import com.simibubi.create.content.logistics.filter.AttributeFilterMenu.WhitelistMode;
+import com.simibubi.create.content.logistics.filter.FilterMenu;
+import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
+import com.simibubi.create.content.logistics.filter.PackageFilterMenu;
+import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
+import com.simibubi.create.foundation.networking.SimplePacketBase;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
+
+
+public class IngredientFilterScreenPacket extends SimplePacketBase {
+
+	public enum IngOption {
+		INGR_MATCHANY, INGR_MATCHALL;
+	}
+
+	private final IngOption option;
+	private final CompoundTag data;
+
+	public IngredientFilterScreenPacket(IngOption option) {
+		this(option, new CompoundTag());
+	}
+
+	public IngredientFilterScreenPacket(IngOption option, CompoundTag data) {
+		this.option = option;
+		this.data = data;
+	}
+
+	public IngredientFilterScreenPacket(FriendlyByteBuf buffer) {
+		option = IngOption.values()[buffer.readInt()];
+		data = buffer.readNbt();
+	}
+
+
+	@Override
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeInt(option.ordinal());
+		buffer.writeNbt(data);
+	}
+
+	@Override
+	public boolean handle(Context context) {
+		CreateIngredientFilter.LOGGER.debug("Enter packet handler");
+		context.enqueueWork(() -> {
+			ServerPlayer player = context.getSender();
+			if (player == null)
+				return;
+			
+            if (player.containerMenu instanceof IngredientFilterMenu c){
+				CreateIngredientFilter.LOGGER.debug("Option is " + option);
+                if (option == IngOption.INGR_MATCHALL)
+					c.matchAny = false;
+				if (option == IngOption.INGR_MATCHANY)
+					c.matchAny = true;
+            }
+
+		});
+		return true;
+	}
+
+}

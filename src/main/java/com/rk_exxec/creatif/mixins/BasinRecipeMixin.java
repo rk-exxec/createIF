@@ -2,7 +2,9 @@ package com.rk_exxec.creatif.mixins;
 
 import java.io.ObjectInputFilter.FilterInfo;
 import java.nio.file.DirectoryStream.Filter;
+import java.util.Arrays;
 
+import org.openjdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -10,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.rk_exxec.creatif.CreateContentFilter;
-import com.rk_exxec.creatif.filter.IContentFilterBehaviour;
+import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.filter.IIngredientFilterBehaviour;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
@@ -19,9 +21,16 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
 
 @Mixin(BasinOperatingBlockEntity.class)
 public class BasinRecipeMixin {
@@ -34,37 +43,60 @@ public class BasinRecipeMixin {
     ))
 
     private static <P> boolean checkIngredientFilter( BasinBlockEntity basin, Recipe<?> recipe, Operation<Boolean> original) {
-        CreateContentFilter.LOGGER.debug("This is the custom filter mixin");
+        CreateIngredientFilter.LOGGER.debug("This is the custom filter mixin");
 
         FilteringBehaviour filter = basin.getFilter();
         if (filter == null){
-            CreateContentFilter.LOGGER.debug("filter is null");
+            CreateIngredientFilter.LOGGER.debug("filter is null");
             return false;
         }
 
-        // CreateContentFilter.LOGGER.debug("Filter has class " + filter.getClass());
+        // CreateIngredientFilter.LOGGER.debug("Filter has class " + filter.getClass());
         try{
-            IContentFilterBehaviour inputFilter = ((IContentFilterBehaviour) (Object) filter);
-        // if (InputFilteringBehaviour.class.isAssignableFrom(filter.getClass())) {
-            // CreateContentFilter.LOGGER.debug("Filter is input filter");
-            NonNullList<ItemStack> inputItems = NonNullList.create();
-            for (int i = 0; i<basin.getInputInventory().getSlots(); i++) {
-                inputItems.add(basin.getInputInventory().getStackInSlot(i));
-            }
-            CreateContentFilter.LOGGER.debug(inputFilter.toString());
-            boolean itemsMatch = inputFilter.test(inputItems);
-            CreateContentFilter.LOGGER.debug("Items " + (itemsMatch?"match":"dont match"));
+            IIngredientFilterBehaviour inputFilter = ((IIngredientFilterBehaviour) (Object) filter);
+            if ((recipe instanceof BasinRecipe basinRecipe && !basinRecipe.getRollableResults().isEmpty()) ||
+                (recipe instanceof ShapelessRecipe shapelessRecipe && !shapelessRecipe.isIncomplete())) 
+                {
+                    CreateIngredientFilter.LOGGER.debug(recipe.getId().toString());
 
-            NonNullList<FluidStack> inputFluids = NonNullList.create();
-            for (TankSegment tS : basin.inputTank.getTanks()) {
-                inputFluids.add(tS.getRenderedFluid()); // TODO: this is probably not right
+                    IItemHandler availableItems = basin.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
+		            IFluidHandler availableFluids = basin.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+
+                    // for some reason, idk why, create tries to match mud even though ingredients dont match.
+                    // this tries to fix that.
+                    if(recipe.getId().toString().equals("create:mixing/mud_by_mixing")){
+                        CreateIngredientFilter.LOGGER.debug("mud?");
+                        boolean actuallyMud = false;
+                        for (Ingredient ingredient : recipe.getIngredients()) {
+                            for (int i = 0; i<availableItems.getSlots();i++){
+                                actuallyMud |= ingredient.test(availableItems.getStackInSlot(i));
+                            }
+                        } 
+                        if(!actuallyMud){
+                            CreateIngredientFilter.LOGGER.debug("Not mud, applying fix");
+                            return original.call(basin, recipe);
+                        }
+                    }
+
+                    NonNullList<ItemStack> inputItems = NonNullList.create();
+                    for (int i = 0; i < availableItems.getSlots(); i++) {
+                        inputItems.add(availableItems.getStackInSlot(i));
+                    }
+                    // CreateIngredientFilter.LOGGER.debug(basinRecipe.getIngredients().toString());
+                    NonNullList<FluidStack> inputFluids = NonNullList.create();
+                    for (int tank = 0; tank < availableFluids.getTanks(); tank++) {
+                        inputFluids.add(availableFluids.getFluidInTank(tank));
+                    }
+                    boolean ingredientsMatch = inputFilter.test(inputItems,inputFluids);
+                    CreateIngredientFilter.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
+                    // basinRecipe.getIngredients()
+                    
+                    if (ingredientsMatch) return true;
+                // }
             }
-            boolean liquidsMatch = inputFilter.test(inputFluids);
-            if (itemsMatch && liquidsMatch) return true;
-            // else return original.call(basin, recipe);
-            else return original.call(basin, recipe);
+            return original.call(basin,recipe);
         } catch(Exception e) {
-            CreateContentFilter.LOGGER.debug("Filter could not be detected as input: " + e.getMessage());
+            CreateIngredientFilter.LOGGER.debug("Filter could not be detected as input: " + e.getMessage());
             return original.call(basin, recipe);
         }
 	}

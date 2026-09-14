@@ -1,7 +1,7 @@
 package com.rk_exxec.creatif.network;
 
-import com.rk_exxec.creatif.CreateContentFilter;
-import com.rk_exxec.creatif.filter.ContentFilterMenu;
+import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,13 +26,13 @@ public record SetMatchAnyPacket(int containerId, boolean value) {
             ServerPlayer player = context.getSender();
             if (player == null || player.containerMenu.containerId != packet.containerId)
                 return;
-            if (player.containerMenu instanceof ContentFilterMenu menu)
+            if (player.containerMenu instanceof IngredientFilterMenu menu)
                 menu.setMatchAny(packet.value);
         });
         context.setPacketHandled(true);
     }
 
     public static void send(int containerId, boolean value) {
-        CreateContentFilter.CHANNEL.sendToServer(new SetMatchAnyPacket(containerId, value));
+        CreateIngredientFilter.CHANNEL.sendToServer(new SetMatchAnyPacket(containerId, value));
     }
 }
