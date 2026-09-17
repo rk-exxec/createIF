@@ -1,5 +1,5 @@
 {
-  "item.creatif.content_filter": "Ingredient Filter",
+  "item.creatif.ingredient_filter": "Ingredient Filter",
   "gui.creatif.match_any.description": "Will start processing recipe if one or more of the specified items are in the basin.",
   "gui.creatif.match_all.description": "Will start processing recipe if all of the specified items are in the basin.",
   "gui.creatif.match_any": "Match Any",

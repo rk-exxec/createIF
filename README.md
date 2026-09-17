@@ -11,3 +11,9 @@ The solution: New filter type!
 Allows you to specify items that need to be in the basin before it may start.
 
 TODO: Check that only maximally matching recipe is then also executed!
+
+TODO: mixin inject in update basing after filter existance ckeck? -> only called once per recipe test
+     then check every recipe for maximum overlap in matchRecipe
+
+TODO: rework filter "inventory" to allow both requirements and resulting recipe. 
+make it addable via emi "plus", make it so that wrapping match is not necessary cus the recipe result will be in  that listfilter overlap

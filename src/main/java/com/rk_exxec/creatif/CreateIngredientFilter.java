@@ -67,11 +67,11 @@ public class CreateIngredientFilter
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "examplemod" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final RegistryObject<Item> CONTENT_FILTER_ITEM = ITEMS.register("content_filter",
+    public static final RegistryObject<Item> CONTENT_FILTER_ITEM = ITEMS.register("ingredient_filter",
         () -> new IngredientFilterItem(new Item.Properties().stacksTo(1)));
 
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
-    public static final RegistryObject<MenuType<IngredientFilterMenu>> CONTENT_FILTER_MENU = MENU_TYPES.register("content_filter", CreateIngredientFilter::createIngredientFilterMenu);
+    public static final RegistryObject<MenuType<IngredientFilterMenu>> CONTENT_FILTER_MENU = MENU_TYPES.register("ingredient_filter", CreateIngredientFilter::createIngredientFilterMenu);
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(MODID, "main"),
         () -> "1",
