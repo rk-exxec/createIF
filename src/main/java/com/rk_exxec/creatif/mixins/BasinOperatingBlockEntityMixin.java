@@ -54,6 +54,7 @@ public class BasinOperatingBlockEntityMixin {
         throw new AssertionError("Shadow error");
     }
 
+    // wrap to check if ingredient filter is used, and if yes if conditions satisfied.
     @WrapMethod(method="getMatchingRecipes", remap=false)
     public List<Recipe<?>> checkIngredients(Operation<List<Recipe<?>>> original){
 		Optional<BasinBlockEntity> $basin = getBasin();
@@ -89,10 +90,11 @@ public class BasinOperatingBlockEntityMixin {
         CreateIngredientFilter.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
 
         if (!ingredientsMatch)
+            // requireed ingredients are not available, skip recipe check
             return new ArrayList<>();
         else{
             var list = original.call();
-            list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items match most
+            list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items will be selected
             return list;
         }
            

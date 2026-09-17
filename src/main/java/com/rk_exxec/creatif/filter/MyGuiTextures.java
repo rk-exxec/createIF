@@ -1,0 +1,82 @@
+package com.rk_exxec.creatif.filter;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.simibubi.create.Create;
+import com.simibubi.create.foundation.gui.AllGuiTextures;
+
+import net.createmod.catnip.gui.TextureSheetSegment;
+import net.createmod.catnip.gui.UIRenderHelper;
+import net.createmod.catnip.gui.element.ScreenElement;
+import net.createmod.catnip.theme.Color;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
+enum MyGuiTextures implements ScreenElement, TextureSheetSegment {
+    CREATIF_INGREDIENT_FILTER("ingredient_filter", 214, 134);
+    public static final int FONT_COLOR = 0x575F7A;
+
+	public final ResourceLocation location;
+	private final int width;
+	private final int height;
+	private final int startX;
+	private final int startY;
+
+    MyGuiTextures(String location, int width, int height) {
+		this(location, 0, 0, width, height);
+	}
+
+	MyGuiTextures(String location, int startX, int startY, int width, int height) {
+		this(CreateIngredientFilter.MODID, location, startX, startY, width, height);
+	}
+
+
+    MyGuiTextures(String namespace, String location, int startX, int startY, int width, int height) {
+		this.location = new ResourceLocation(namespace, "textures/gui/" + location + ".png");
+		this.width = width;
+		this.height = height;
+		this.startX = startX;
+		this.startY = startY;
+	}
+
+	@Override
+	public ResourceLocation getLocation() {
+		return location;
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public void render(GuiGraphics graphics, int x, int y) {
+		graphics.blit(location, x, y, startX, startY, width, height);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public void render(GuiGraphics graphics, int x, int y, Color c) {
+		bind();
+		UIRenderHelper.drawColoredTexture(graphics, c, x, y, startX, startY, width, height);
+	}
+
+	@Override
+	public int getStartX() {
+		return startX;
+	}
+
+	@Override
+	public int getStartY() {
+		return startY;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
+	}
+}

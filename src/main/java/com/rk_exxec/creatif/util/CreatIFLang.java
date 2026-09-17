@@ -9,4 +9,7 @@ public class CreatIFLang {
     public static MutableComponent translate(String category, String key) {
         return Component.translatable(category + "." + CreateIngredientFilter.MODID + "." + key);
     }
+    public static MutableComponent translateDirect(String prefix, String key) {
+        return Component.translatable(prefix + "." + key);
+    }
 }
