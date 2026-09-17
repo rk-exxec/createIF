@@ -17,3 +17,5 @@ TODO: mixin inject in update basing after filter existance ckeck? -> only called
 
 TODO: rework filter "inventory" to allow both requirements and resulting recipe. 
 make it addable via emi "plus", make it so that wrapping match is not necessary cus the recipe result will be in  that listfilter overlap
+
+TODO: check the sort actually works
