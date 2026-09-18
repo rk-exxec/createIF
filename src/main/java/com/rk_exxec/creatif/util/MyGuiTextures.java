@@ -1,4 +1,6 @@
-package com.rk_exxec.creatif;
+package com.rk_exxec.creatif.util;
+
+import com.rk_exxec.creatif.CreateIngredientFilter;
 
 import net.createmod.catnip.gui.TextureSheetSegment;
 import net.createmod.catnip.gui.UIRenderHelper;

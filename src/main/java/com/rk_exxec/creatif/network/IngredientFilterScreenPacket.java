@@ -2,12 +2,6 @@ package com.rk_exxec.creatif.network;
 
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
-import com.simibubi.create.content.logistics.filter.AttributeFilterMenu;
-import com.simibubi.create.content.logistics.filter.AttributeFilterMenu.WhitelistMode;
-import com.simibubi.create.content.logistics.filter.FilterMenu;
-import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
-import com.simibubi.create.content.logistics.filter.PackageFilterMenu;
-import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +13,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class IngredientFilterScreenPacket extends SimplePacketBase {
 
 	public enum IngOption {
-		INGR_MATCHANY, INGR_MATCHALL;
+		INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE;
 	}
 
 	private final IngOption option;
@@ -32,6 +26,10 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
 	public IngredientFilterScreenPacket(IngOption option, CompoundTag data) {
 		this.option = option;
 		this.data = data;
+	}
+
+	public IngredientFilterScreenPacket(CompoundTag data) {
+		this(IngOption.FILL_RECIPE, data);
 	}
 
 	public IngredientFilterScreenPacket(FriendlyByteBuf buffer) {
@@ -60,6 +58,8 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
 					c.matchAny = false;
 				if (option == IngOption.INGR_MATCHANY)
 					c.matchAny = true;
+				if (option == IngOption.FILL_RECIPE)
+					c.applyRecipeData(data);
             }
 
 		});

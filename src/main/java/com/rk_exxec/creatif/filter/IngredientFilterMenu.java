@@ -1,13 +1,7 @@
 package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreateIngredientFilter;
-import com.simibubi.create.AllItems;
-import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
-import com.simibubi.create.content.logistics.filter.FilterMenu;
-import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
-
-import net.minecraft.client.gui.screens.recipebook.GhostRecipe.GhostIngredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,6 +11,9 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+
+import java.util.List;
+
 
 public class IngredientFilterMenu extends AbstractFilterMenu {
     boolean respectNBT;
@@ -137,6 +134,26 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
 			outputGhostInventory.setStackInSlot(i, ItemStack.EMPTY);
 		super.clearContents();
+	}
+
+	public void applyRecipe(List<ItemStack> ingredients, ItemStack output) {
+		for (int i = 0; i < ghostInventory.getSlots(); i++)
+			ghostInventory.setStackInSlot(i, i < ingredients.size() ? ingredients.get(i).copy() : ItemStack.EMPTY);
+		outputGhostInventory.setStackInSlot(0, output.copy());
+		saveData((ItemStack) contentHolder);
+	}
+
+	public CompoundTag createRecipeData() {
+		CompoundTag data = new CompoundTag();
+		data.put("Items", ghostInventory.serializeNBT());
+		data.put("Output", outputGhostInventory.serializeNBT());
+		return data;
+	}
+
+	public void applyRecipeData(CompoundTag data) {
+		ghostInventory.deserializeNBT(data.getCompound("Items"));
+		outputGhostInventory.deserializeNBT(data.getCompound("Output"));
+		saveData((ItemStack) contentHolder);
 	}
 
 }

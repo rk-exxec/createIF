@@ -1,21 +1,15 @@
 package com.rk_exxec.creatif.filter;
 
-import com.google.common.collect.ImmutableList;
 import com.rk_exxec.creatif.CreateIngredientFilter;
-import com.rk_exxec.creatif.MyGuiTextures;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
-import com.simibubi.create.AllPackets;
+import com.rk_exxec.creatif.util.MyGuiTextures;
 import com.simibubi.create.content.logistics.filter.AbstractFilterScreen;
-import com.simibubi.create.content.logistics.filter.FilterScreen;
-import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
-import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
-import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 import net.createmod.catnip.gui.element.GuiGameElement;
@@ -25,9 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.util.ArrayList;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilterMenu> {
@@ -58,7 +51,6 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 
 	private IconButton resetButton;
 	private IconButton confirmButton;
-	private List<Rect2i> extraAreas = Collections.emptyList();
 
     MyGuiTextures background;
 
@@ -69,7 +61,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 
     @Override
     protected void init() {
-        setWindowOffset(-11, 5);
+        setWindowOffset(-11, CreateIngredientFilter.I_SCREEN_Y_OFFSET);
 		setWindowSize(Math.max(background.getWidth(), PLAYER_INVENTORY.getWidth()),
 			background.getHeight() + 4 + PLAYER_INVENTORY.getHeight());
 		((IAbstractFilterScreenMixin) (Object) this).onlySuperInit();
@@ -90,8 +82,6 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 
 		addRenderableWidget(resetButton);
 		addRenderableWidget(confirmButton);
-
-		extraAreas = ImmutableList.of(new Rect2i(x + background.getWidth(), y + background.getHeight() - 40, 80, 48));
 
 		int top_offset = background.getHeight() - 24;
 		int btn_width = 18;
@@ -187,6 +177,11 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     @Override
 	protected int getTitleColor() {
 		return 0x00302B;
+	}
+
+	@Override
+	public List<Rect2i> getExtraAreas() {
+		return List.of(new Rect2i(leftPos + background.getWidth(), topPos + background.getHeight() - 40, 80, 48));
 	}
 
 	@Override

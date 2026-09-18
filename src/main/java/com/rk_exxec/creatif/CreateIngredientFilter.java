@@ -2,24 +2,15 @@ package com.rk_exxec.creatif;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -27,33 +18,24 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
-import com.simibubi.create.Create;
-import com.simibubi.create.foundation.networking.SimplePacketBase;
+
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.filter.IngredientFilterScreen;
-import com.rk_exxec.creatif.filter.IngredientFilterItem;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
-import com.rk_exxec.creatif.network.SetMatchAnyPacket;
+import com.rk_exxec.creatif.filter.IngredientFilterItem;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import net.minecraftforge.network.NetworkEvent.Context;
 
-import static net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT;
 import static net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CreateIngredientFilter.MODID)
@@ -77,6 +59,8 @@ public class CreateIngredientFilter
         () -> "1",
         "1"::equals,
         "1"::equals);
+
+    public static final int I_SCREEN_Y_OFFSET = -10;
 
 
     private static MenuType<IngredientFilterMenu> createIngredientFilterMenu() {
