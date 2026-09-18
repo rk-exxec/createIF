@@ -1,6 +1,8 @@
 package com.rk_exxec.creatif.filter;
 
+import com.google.common.collect.ImmutableList;
 import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.MyGuiTextures;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
@@ -11,15 +13,21 @@ import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
+import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
+import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
-
+import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
+import net.createmod.catnip.gui.element.GuiGameElement;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilterMenu> {
@@ -47,28 +55,55 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     private IconButton matchAnyButton;
     private IconButton matchAllButton;
 
+
+	private IconButton resetButton;
+	private IconButton confirmButton;
+	private List<Rect2i> extraAreas = Collections.emptyList();
+
     MyGuiTextures background;
 
     public IngredientFilterScreen(IngredientFilterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, AllGuiTextures.FILTER);
-        this.background = MyGuiTextures.CREATIF_INGREDIENT_FILTER;
+		this.background = MyGuiTextures.CREATIF_INGREDIENT_FILTER;
     }
 
     @Override
     protected void init() {
         setWindowOffset(-11, 5);
-		super.init();
+		setWindowSize(Math.max(background.getWidth(), PLAYER_INVENTORY.getWidth()),
+			background.getHeight() + 4 + PLAYER_INVENTORY.getHeight());
+		((IAbstractFilterScreenMixin) (Object) this).onlySuperInit();
 
 		int x = leftPos;
 		int y = topPos;
 
-		blacklist = new IconButton(x + 18, y + 75, AllIcons.I_BLACKLIST);
+		resetButton = new IconButton(x + background.getWidth() - 62, y + background.getHeight() - 24, AllIcons.I_TRASH);
+		resetButton.withCallback(() -> {
+			menu.clearContents();
+			contentsCleared();
+			menu.sendClearPacket();
+		});
+		confirmButton = new IconButton(x + background.getWidth() - 33, y + background.getHeight() - 24, AllIcons.I_CONFIRM);
+		confirmButton.withCallback(() -> {
+			minecraft.player.closeContainer();
+		});
+
+		addRenderableWidget(resetButton);
+		addRenderableWidget(confirmButton);
+
+		extraAreas = ImmutableList.of(new Rect2i(x + background.getWidth(), y + background.getHeight() - 40, 80, 48));
+
+		int top_offset = background.getHeight() - 24;
+		int btn_width = 18;
+		int btn_spacing = 6;
+
+		blacklist = new IconButton(x + btn_width, y + top_offset, AllIcons.I_BLACKLIST);
 		blacklist.withCallback(() -> {
 			menu.blacklist = true;
 			sendOptionUpdate(Option.BLACKLIST);
 		});
 		blacklist.setToolTip(denyN);
-		whitelist = new IconButton(x + 36, y + 75, AllIcons.I_WHITELIST);
+		whitelist = new IconButton(x + btn_width*2, y + top_offset, AllIcons.I_WHITELIST);
 		whitelist.withCallback(() -> {
 			menu.blacklist = false;
 			sendOptionUpdate(Option.WHITELIST);
@@ -76,13 +111,13 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 		whitelist.setToolTip(allowN);
 		addRenderableWidgets(blacklist, whitelist);
 
-		respectNBT = new IconButton(x + 60, y + 75, AllIcons.I_RESPECT_NBT);
+		respectNBT = new IconButton(x + btn_spacing + btn_width*3, y + top_offset, AllIcons.I_RESPECT_NBT);
 		respectNBT.withCallback(() -> {
 			menu.respectNBT = true;
 			sendOptionUpdate(Option.RESPECT_DATA);
 		});
 		respectNBT.setToolTip(respectDataN);
-		ignoreNBT = new IconButton(x + 78, y + 75, AllIcons.I_IGNORE_NBT);
+		ignoreNBT = new IconButton(x + btn_spacing + btn_width*4, y + top_offset, AllIcons.I_IGNORE_NBT);
 		ignoreNBT.withCallback(() -> {
 			menu.respectNBT = false;
 			sendOptionUpdate(Option.IGNORE_DATA);
@@ -90,7 +125,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 		ignoreNBT.setToolTip(ignoreDataN);
 		addRenderableWidgets(respectNBT, ignoreNBT);
 
-        matchAnyButton = new IconButton(leftPos + 102, topPos + 75, AllIcons.I_WHITELIST_OR);
+        matchAnyButton = new IconButton(x + btn_spacing*2 + btn_width*5, y + top_offset, AllIcons.I_WHITELIST_OR);
         matchAnyButton.setToolTip(matchAnyN);
         matchAnyButton.withCallback(() -> {
             IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
@@ -98,7 +133,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
             sendOptionUpdate(IngOption.INGR_MATCHANY);
         });
 
-        matchAllButton = new IconButton(leftPos + 120, topPos + 75, AllIcons.I_WHITELIST_AND);
+        matchAllButton = new IconButton(x + btn_spacing*2 + btn_width*6, y + top_offset, AllIcons.I_WHITELIST_AND);
         matchAllButton.setToolTip(matchAllN);
         matchAllButton.withCallback(() -> {
             IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
@@ -152,5 +187,24 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     @Override
 	protected int getTitleColor() {
 		return 0x00302B;
+	}
+
+	@Override
+	protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+		int invX = getLeftOfCentered(PLAYER_INVENTORY.getWidth());
+		int invY = topPos + background.getHeight() + 4;
+		renderPlayerInventory(graphics, invX, invY);
+
+		int x = leftPos;
+		int y = topPos;
+
+		background.render(graphics, x, y);
+		graphics.drawString(font, title, x + (background.getWidth() - 8) / 2 - font.width(title) / 2, y + 4,
+			getTitleColor(), false);
+
+		GuiGameElement.of(menu.contentHolder).<GuiGameElement
+			.GuiRenderBuilder>at(x + background.getWidth() + 8, y + background.getHeight() - 52, -200)
+			.scale(4)
+			.render(graphics);
 	}
 }

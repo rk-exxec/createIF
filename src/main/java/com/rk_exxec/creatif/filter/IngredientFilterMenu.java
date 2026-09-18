@@ -68,16 +68,18 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 
 	@Override
 	protected int getPlayerInventoryYOffset() {
-		return 121;
+		return 134+22;
 	}
 
 	@Override
 	protected void addFilterSlots() {
 		int x = 23;
 		int y = 25;
-		for (int row = 0; row < 2; ++row)
-			for (int col = 0; col < 9; ++col)
-				this.addSlot(new SlotItemHandler(ghostInventory, col + row * 9, x + col * 18, y + row * 18));
+		int nCols = 5;
+		this.addSlot(new SlotItemHandler(ghostInventory, 0, 164, 52));
+		for (int row = 0; row < 4; ++row)
+			for (int col = 0; col < 5; ++col)
+				this.addSlot(new SlotItemHandler(ghostInventory, 1+col + row * nCols, x + col * 18, y + row * 18));
 	}
 
 	@Override

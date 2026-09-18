@@ -7,10 +7,6 @@ import java.util.List;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.filter.*;
-import com.simibubi.create.content.logistics.filter.FilterItemStack.AttributeFilterItemStack;
-import com.simibubi.create.content.logistics.filter.FilterItemStack.ListFilterItemStack;
-import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
-import com.simibubi.create.content.logistics.item.filter.attribute.attributes.InTagAttribute;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
@@ -25,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 
 import java.util.Objects;
 
@@ -87,8 +82,9 @@ public class IngredientFilterItem extends ListFilterItem {
 		return new IngredientFilterItemStack(filter);
 	}
 
+	@Override 
 	public ItemStackHandler getFilterItemHandler(ItemStack stack) {
-		ItemStackHandler newInv = new ItemStackHandler(18);
+		ItemStackHandler newInv = new ItemStackHandler(20);
 		CompoundTag invNBT = stack.getOrCreateTagElement("Items");
 		if (!invNBT.isEmpty())
 			newInv.deserializeNBT(invNBT);

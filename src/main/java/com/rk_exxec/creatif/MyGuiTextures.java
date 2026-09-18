@@ -1,11 +1,4 @@
-package com.rk_exxec.creatif.filter;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-
-import com.rk_exxec.creatif.CreateIngredientFilter;
-import com.simibubi.create.Create;
-import com.simibubi.create.foundation.gui.AllGuiTextures;
+package com.rk_exxec.creatif;
 
 import net.createmod.catnip.gui.TextureSheetSegment;
 import net.createmod.catnip.gui.UIRenderHelper;
@@ -17,7 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 
-enum MyGuiTextures implements ScreenElement, TextureSheetSegment {
+public enum MyGuiTextures implements ScreenElement, TextureSheetSegment {
     CREATIF_INGREDIENT_FILTER("ingredient_filter", 214, 134);
     public static final int FONT_COLOR = 0x575F7A;
 
