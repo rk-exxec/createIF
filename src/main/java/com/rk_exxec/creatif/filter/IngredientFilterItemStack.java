@@ -2,7 +2,6 @@ package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
-import com.simibubi.create.content.logistics.filter.ListFilterItem;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -45,10 +44,12 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
         // CreateIngredientFilter.LOGGER.debug("Made it to CFIS");
         // CreateIngredientFilter.LOGGER.debug(list.toString());
 
+        
+
         for (ItemStack stack : itemStacks) {
-            // CreateIngredientFilter.LOGGER.debug("Checking list item "+ stack);
+            CreateIngredientFilter.LOGGER.debug("Checking list item "+ stack);
             //skip air
-            if(Item.getId(stack.getItem()) == 0) continue;
+            if(stack.isEmpty() || Item.getId(stack.getItem()) == 0) continue;
             // calls super class FilteringBehaviour method
             if(testIngredients(world, stack, shouldRespectNBT)){
                 result += 1;
@@ -59,8 +60,8 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
     
 
         for (FluidStack stack : fluidStacks) {
-            // CreateIngredientFilter.LOGGER.debug("Checking list fluid "+ stack);
-            if(stack == FluidStack.EMPTY) continue;
+            CreateIngredientFilter.LOGGER.debug("Checking list fluid "+ stack);
+            if(stack.isEmpty()) continue;
             if(testIngredients(world, stack, shouldRespectNBT)){
                 result += 1;
                 CreateIngredientFilter.LOGGER.debug("Fluid "+ stack + " matches");
@@ -75,7 +76,7 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
         }
         else{
             CreateIngredientFilter.LOGGER.debug("Match all");
-            return result == total && total > 0;
+            return result == containedItems.size() && containedItems.size() > 0;
         }
     }
 

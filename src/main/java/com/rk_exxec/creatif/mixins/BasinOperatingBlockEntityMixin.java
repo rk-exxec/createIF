@@ -6,16 +6,12 @@ import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
-import com.rk_exxec.creatif.filter.IngredientFilteringBehaviour;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
@@ -25,7 +21,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -39,16 +34,6 @@ import net.minecraftforge.items.IItemHandler;
  */
 @Mixin(BasinOperatingBlockEntity.class)
 public class BasinOperatingBlockEntityMixin {
-    // @WrapOperation(method = "matchBasinRecipe", remap = false,
-    //     at = @At(value = "INVOKE",
-    //     target = "Lcom/simibubi/create/content/processing/basin/BasinRecipe;match(Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;Lnet/minecraft/world/item/crafting/Recipe;)Z"
-    // ))
-
-    // @Inject(method = "updateBasin", at=@At("INVOKE"), 
-    // target="Lcom/simibubi/create/content/processing/basin/BasinOperatingBlockEntity;getMatchingRecipes()Ljava/util/List;")
-    // public boolean hasIngredients(CallbackInfo ci){
-    //     return false;
-    // }
     @Shadow 
     protected Optional<BasinBlockEntity> getBasin(){
         throw new AssertionError("Shadow error");

@@ -68,8 +68,6 @@ public class IngredientFilterItem extends ListFilterItem {
 			return Collections.emptyList();
 
 		return list;
-
-		// TODO: add match all or any to summary
 	}
 
 	@Override
