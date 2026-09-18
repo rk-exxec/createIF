@@ -57,10 +57,14 @@ public class BasinOperatingBlockEntityMixin {
     // wrap to check if ingredient filter is used, and if yes if conditions satisfied.
     @WrapMethod(method="getMatchingRecipes", remap=false)
     public List<Recipe<?>> checkIngredients(Operation<List<Recipe<?>>> original){
+
+        // check basin validity, copied from wrapped method
 		Optional<BasinBlockEntity> $basin = getBasin();
 		BasinBlockEntity basin;
 		if ($basin.isEmpty() || (basin = $basin.get()).isEmpty())
 			return new ArrayList<>();
+
+
         CreateIngredientFilter.LOGGER.debug("This is the custom filter mixin");
 
         FilteringBehaviour filter = basin.getFilter();
@@ -68,16 +72,18 @@ public class BasinOperatingBlockEntityMixin {
             CreateIngredientFilter.LOGGER.debug("filter is null");
             return original.call();
         }
-        // CreateIngredientFilter.LOGGER.debug("Filter has class " + filter.getClass());
+        // Check if the filter is of my type
         CreateIngredientFilter.LOGGER.debug("Filter has class " + filter.getFilter().getDescriptionId());
         if (!(filter.getFilter().getDescriptionId().startsWith("item.creatif"))){
             CreateIngredientFilter.LOGGER.debug("Not ingredient filter - vanilla times");
             return original.call();
         }
-        IngredientFilterItemStack inputFilter = new IngredientFilterItemStack(filter.getFilter());
+        // cast filter to make custom functions available
+        IngredientFilterItemStack inputFilter = IngredientFilterItemStack.of(filter.getFilter());
         IItemHandler availableItems = basin.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
         IFluidHandler availableFluids = basin.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 
+        // build list of available liquids and fluids in the basin
         NonNullList<ItemStack> inputItems = NonNullList.create();
         for (int i = 0; i < availableItems.getSlots(); i++) {
             inputItems.add(availableItems.getStackInSlot(i));
@@ -86,7 +92,8 @@ public class BasinOperatingBlockEntityMixin {
         for (int tank = 0; tank < availableFluids.getTanks(); tank++) {
             inputFluids.add(availableFluids.getFluidInTank(tank));
         }
-        boolean ingredientsMatch = inputFilter.test(basin.getLevel(), inputItems,inputFluids);
+        // test all liquids and fluids for requirement
+        boolean ingredientsMatch = inputFilter.testIngredients(basin.getLevel(), inputItems, inputFluids);
         CreateIngredientFilter.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
 
         if (!ingredientsMatch)
@@ -94,25 +101,23 @@ public class BasinOperatingBlockEntityMixin {
             return new ArrayList<>();
         else{
             var list = original.call();
+            // originally this is sorted by least amount of ingredients first, which is not what I want
             list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items will be selected
             return list;
         }
-           
+           // after this function returns, the output match is done with the builtin functionality
     }
 
-    // scores the matchup of input items and required ingredients
+    // scores the overlap of input items and required ingredients
     int scoreRecipe(Recipe<?> recipe, IngredientFilterItemStack filter){
         BasinRecipe basinRecipe = (BasinRecipe) recipe;
 
         var recipeIngr = basinRecipe.getIngredients();
         // Ingredient test = recipeIngr.get(0).getItems()
-
         int res = 0;
-        int tot = 0;
         for (Ingredient ingredient : recipeIngr) {
             for (ItemStack stack : ingredient.getItems()){
-                res += filter.test(getBasin().get().getLevel(),stack)?1:0;
-                tot ++;
+                res += filter.testIngredients(getBasin().get().getLevel(),stack)?1:0;
             }
         }
         return res;

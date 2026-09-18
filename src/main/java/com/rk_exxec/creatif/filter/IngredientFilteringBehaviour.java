@@ -47,7 +47,7 @@ public class IngredientFilteringBehaviour extends FilteringBehaviour{//} BlockEn
         }
         IngredientFilterItemStack filterItemStack = (IngredientFilterItemStack)filter;
         // CreateIngredientFilter.LOGGER.debug(filterItemStack.toString());
-		return !isActive() || filterItemStack.test(blockEntity.getLevel(), itemStacks, fluidStacks);
+		return !isActive() || filterItemStack.testIngredients(blockEntity.getLevel(), itemStacks, fluidStacks);
 	}
 
     public IngredientFilteringBehaviour(SmartBlockEntity be, ValueBoxTransform slot) {

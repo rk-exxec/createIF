@@ -91,11 +91,27 @@ public class IngredientFilterItem extends ListFilterItem {
 		return newInv;
 	}
 
+	public ItemStackHandler getFilterOutputHandler(ItemStack stack) {
+		ItemStackHandler newInv = new ItemStackHandler(1);
+		CompoundTag invNBT = stack.getOrCreateTagElement("Output");
+		if (!invNBT.isEmpty())
+			newInv.deserializeNBT(invNBT);
+		return newInv;
+	}
+
 	@Override
 	public ItemStack[] getFilterItems(ItemStack itemStack) {
 		if (itemStack.hasTag() && itemStack.getOrCreateTag().getBoolean("Blacklist"))
 			return new ItemStack[0];
+		
 		return ItemHelper.getNonEmptyStacks(getFilterItemHandler(itemStack)).toArray(ItemStack[]::new);
+	}
+
+	public ItemStack getFilterOutputItem(ItemStack itemStack) {
+		// if (itemStack.hasTag() && itemStack.getOrCreateTag().getBoolean("Blacklist"))
+		// 	return null;
+		
+		return getFilterOutputHandler(itemStack).getStackInSlot(0);
 	}
  
 	public static boolean testDirect(ItemStack filter, ItemStack stack, boolean matchNBT) {
