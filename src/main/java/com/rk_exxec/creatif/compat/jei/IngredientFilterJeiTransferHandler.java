@@ -26,7 +26,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 
 	@Override
 	public Optional<MenuType<IngredientFilterMenu>> getMenuType() {
-		return Optional.of(CreateIngredientFilter.CONTENT_FILTER_MENU.get());
+		return Optional.of(CreateIngredientFilter.INGREDIENT_FILTER_MENU.get());
 	}
 
 	@Override

@@ -50,11 +50,11 @@ public class CreateIngredientFilter
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "examplemod" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final RegistryObject<IngredientFilterItem> CONTENT_FILTER_ITEM = ITEMS.register("ingredient_filter",
+    public static final RegistryObject<IngredientFilterItem> INGREDIENT_FILTER_ITEM = ITEMS.register("ingredient_filter",
         () -> new IngredientFilterItem(new Item.Properties().stacksTo(1)));
 
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
-    public static final RegistryObject<MenuType<IngredientFilterMenu>> CONTENT_FILTER_MENU = MENU_TYPES.register("ingredient_filter", CreateIngredientFilter::createIngredientFilterMenu);
+    public static final RegistryObject<MenuType<IngredientFilterMenu>> INGREDIENT_FILTER_MENU = MENU_TYPES.register("ingredient_filter", CreateIngredientFilter::createIngredientFilterMenu);
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         ResourceLocation.fromNamespaceAndPath(MODID, "main"),
         () -> "1",
@@ -63,14 +63,14 @@ public class CreateIngredientFilter
 
     public static final int I_SCREEN_Y_OFFSET = -10;
 
-    public static final boolean WAILA_ACTIVE = 
-                ModList.get().isLoaded("waila") ||
-                ModList.get().isLoaded("hwyla") ||
-                ModList.get().isLoaded("jade");
+    public static final boolean WAILA_ACTIVE = false;
+                // ModList.get().isLoaded("waila") ||
+                // ModList.get().isLoaded("hwyla") ||
+                // ModList.get().isLoaded("jade"); // this doesnt work i think
 
 
     private static MenuType<IngredientFilterMenu> createIngredientFilterMenu() {
-        return IForgeMenuType.create((id, inventory, buffer) -> new IngredientFilterMenu(CONTENT_FILTER_MENU.get(), id, inventory, buffer));
+        return IForgeMenuType.create((id, inventory, buffer) -> new IngredientFilterMenu(INGREDIENT_FILTER_MENU.get(), id, inventory, buffer));
     }
 
     public CreateIngredientFilter(FMLJavaModLoadingContext context)
@@ -120,7 +120,7 @@ public class CreateIngredientFilter
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES)
-            event.accept(CONTENT_FILTER_ITEM);
+            event.accept(INGREDIENT_FILTER_ITEM);
     }
 
 
@@ -141,7 +141,7 @@ public class CreateIngredientFilter
         @SuppressWarnings({ "rawtypes", "unchecked" })
         private static void registerIngredientFilterScreen()
         {
-            MenuScreens.register((MenuType) CONTENT_FILTER_MENU.get(), (ScreenConstructor) (menu, inventory, title) -> new IngredientFilterScreen((IngredientFilterMenu) menu, inventory, title));
+            MenuScreens.register((MenuType) INGREDIENT_FILTER_MENU.get(), (ScreenConstructor) (menu, inventory, title) -> new IngredientFilterScreen((IngredientFilterMenu) menu, inventory, title));
         }
     }
 }

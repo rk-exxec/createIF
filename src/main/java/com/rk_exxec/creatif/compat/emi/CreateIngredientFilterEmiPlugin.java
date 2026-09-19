@@ -10,7 +10,7 @@ import dev.emi.emi.api.EmiRegistry;
 public class CreateIngredientFilterEmiPlugin implements EmiPlugin {
 	@Override
 	public void register(EmiRegistry registry) {
-		registry.addRecipeHandler(CreateIngredientFilter.CONTENT_FILTER_MENU.get(),
+		registry.addRecipeHandler(CreateIngredientFilter.INGREDIENT_FILTER_MENU.get(),
 			new IngredientFilterRecipeHandler());
 	}
 }
