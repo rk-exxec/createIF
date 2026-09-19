@@ -3,7 +3,6 @@ package com.rk_exxec.creatif;
 import com.mojang.logging.LogUtils;
 
 import net.createmod.catnip.lang.FontHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -13,7 +12,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -26,15 +24,11 @@ import org.slf4j.Logger;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.filter.IngredientFilterScreen;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
-import com.rk_exxec.creatif.util.MyGuiTextures;
 import com.rk_exxec.creatif.util.MyItems;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
-import com.tterrag.registrate.util.entry.ItemEntry;
-import com.rk_exxec.creatif.filter.IngredientFilterItem;
-
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -47,8 +41,6 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 import static net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER;
-
-import java.util.Properties;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CreatIF.MODID)
