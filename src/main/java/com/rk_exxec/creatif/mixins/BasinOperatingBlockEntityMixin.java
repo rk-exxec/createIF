@@ -102,7 +102,7 @@ public class BasinOperatingBlockEntityMixin {
             var list = original.call();
             CreatIF.LOGGER.debug("Scoring recipe...");
             // originally this is sorted by least amount of ingredients first, which is not what I want
-            list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items will be selected
+            list.sort((r1,r2) -> scoreRecipe(r2, inputFilter) - scoreRecipe(r1, inputFilter)); // recipes that match most with available items will be selected
             return list;
         }
            // after this function returns, the output match is done with the builtin functionality

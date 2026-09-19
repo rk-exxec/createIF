@@ -1,3 +1,3 @@
 # TODO
 
-- [ ] check the sort actually works
+- [x] check the sort actually works

@@ -10,8 +10,11 @@ However, Create seems to not have thought of that at all, basins just pick any r
 
 <img src="images/blank_filter.png" width=400px> <img src="images/icon.png" width=200px> 
 
-Allows you to specify items that need to be in the basin before it may start on the left.  
+Allows you to specify items that need to be in a basin before it may start on the left.  
+You can also use buckets/fluids to require that specific liquids are present.  
 Optionally you can specify the target recipe in the slot on the right.
+
+**Supports adding recipes via [+] Button in EMI or JEI!**
 
 ### Example: 
 
