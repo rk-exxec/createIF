@@ -49,6 +49,10 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
 		return super.item();
 	}
 
+    public IngredientFilterItem getFilterItem() {
+		return (IngredientFilterItem) super.item().getItem();
+	}
+
 //#region custom filter functions
 
     /**

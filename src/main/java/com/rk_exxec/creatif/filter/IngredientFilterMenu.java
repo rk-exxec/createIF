@@ -32,7 +32,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
     protected void initAndReadInventory(ItemStack filter) {
         super.initAndReadInventory(filter);
 		CompoundTag tag = filter.getOrCreateTag();
-		outputGhostInventory = CreateIngredientFilter.CONTENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
+		outputGhostInventory = CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
 		respectNBT = tag.getBoolean("RespectNBT");
 		blacklist = tag.getBoolean("Blacklist");
         matchAny = tag.getBoolean("Match Any");
@@ -62,7 +62,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
     }
 
     public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
-        return new IngredientFilterMenu(CreateIngredientFilter.CONTENT_FILTER_MENU.get(), id, inventory, filter);
+        return new IngredientFilterMenu(CreateIngredientFilter.INGREDIENT_FILTER_MENU.get(), id, inventory, filter);
     }
 
 	@Override
@@ -93,7 +93,10 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 			return;
 
 		ItemStack held = getCarried();
+		
 		int slot = slotId - 36;
+
+		if(slot>0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
 		// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
 		if(slot >= 0 && ghostInventory.getSlots() - slot <= 0 ) {
 
@@ -124,8 +127,8 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	
 	@Override
 	protected ItemStackHandler createGhostInventory() {
-		outputGhostInventory = CreateIngredientFilter.CONTENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
-		return CreateIngredientFilter.CONTENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
+		outputGhostInventory = CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
+		return CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
 	}
 
 

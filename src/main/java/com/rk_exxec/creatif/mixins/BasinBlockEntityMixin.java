@@ -10,12 +10,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
 import com.rk_exxec.creatif.interfaces.IBasinBlockEntityMixin;
+import com.rk_exxec.creatif.interfaces.IFilteringBehaviourMixin;
 import com.rk_exxec.creatif.util.CreatIFLang;
+import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -27,6 +28,7 @@ public class BasinBlockEntityMixin implements IBasinBlockEntityMixin {
 
     @Shadow(remap=false)
     FilteringBehaviour filtering;
+
 
     public void setFilterRecipeStatus(boolean matchesRecipe){
         filterRecipeMismatch = matchesRecipe;
@@ -40,27 +42,28 @@ public class BasinBlockEntityMixin implements IBasinBlockEntityMixin {
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking, Operation<Boolean> original){
         boolean orig_result = original.call(tooltip,isPlayerSneaking);
 
-        if(!CreateIngredientFilter.WAILA_ACTIVE){
-            String filterID = filtering.getFilter().getDescriptionId();
+        FilterItemStack filterItemStack = ((IFilteringBehaviourMixin)(Object)filtering).getFilterStack();
+        String filterID = filtering.getFilter().getDescriptionId();
+        if((filterItemStack instanceof IngredientFilterItemStack ingredientFilterStack) && !CreateIngredientFilter.WAILA_ACTIVE){
+            
             CreateLang.builder().add((CreatIFLang.translateRaw(filterID))
-                        .withStyle(ChatFormatting.DARK_AQUA)).forGoggles(tooltip, 0);
-            if(filterID.startsWith("item.creatif")){
-                IngredientFilterItemStack inputFilter = IngredientFilterItemStack.of(filtering.getFilter());
-                if(inputFilter.matchAny)
-                    CreateLang.builder().add((CreatIFLang.translate("gui", "match_any"))
-                                .withStyle(ChatFormatting.GREEN)).forGoggles(tooltip, 1);
-                else
-                    CreateLang.builder().add((CreatIFLang.translate("gui", "match_all"))
-                                .withStyle(ChatFormatting.YELLOW)).forGoggles(tooltip, 1);
+                            .withStyle(ChatFormatting.DARK_AQUA)).forGoggles(tooltip, 0);
+            if(isPlayerSneaking){
+                ingredientFilterStack.getFilterItem().makeSummary(ingredientFilterStack.item())
+                    .forEach((c) -> CreateLang.builder().add(c).forGoggles(tooltip,1));
+            }
+            else{
+                CreateLang.builder().add(ingredientFilterStack.getFilterItem().matchingLabel(ingredientFilterStack.matchAny))
+                    .forGoggles(tooltip, 1);
             }
         }
-        if(filterRecipeMismatch)
-            CreateLang.builder().add((CreatIFLang.translate("gui", "filter_recipe_mismatch"))
-					.withStyle(ChatFormatting.RED)).forGoggles(tooltip, 1);
+        // if(filterRecipeMismatch)
+        //     CreateLang.builder().add((CreatIFLang.translate("gui", "filter_recipe_mismatch"))
+		// 			.withStyle(ChatFormatting.RED)).forGoggles(tooltip, 1);
 
-        if(filterIngredientMismatch)
-            CreateLang.builder().add((CreatIFLang.translate("gui", "filter_ingredient_mismatch"))
-					.withStyle(ChatFormatting.RED)).forGoggles(tooltip, 1);
+        // if(filterIngredientMismatch)
+        //     CreateLang.builder().add((CreatIFLang.translate("gui", "filter_ingredient_mismatch"))
+		// 			.withStyle(ChatFormatting.RED)).forGoggles(tooltip, 1);
 
         return orig_result;
     }

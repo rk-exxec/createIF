@@ -1,23 +1,19 @@
 package com.rk_exxec.creatif.mixins;
 
-import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
-import com.rk_exxec.creatif.interfaces.IBasinBlockEntityMixin;
+import com.rk_exxec.creatif.interfaces.IFilteringBehaviourMixin;
+import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
-import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 
 import net.minecraft.core.NonNullList;
@@ -25,7 +21,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.common.brewing.BrewingRecipe;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -66,14 +61,15 @@ public class BasinOperatingBlockEntityMixin {
             CreateIngredientFilter.LOGGER.debug("filter is null");
             return original.call();
         }
+        FilterItemStack filterStack = ((IFilteringBehaviourMixin) (Object) filter).getFilterStack();
         // Check if the filter is of my type
         CreateIngredientFilter.LOGGER.debug("Filter has class " + filter.getFilter().getDescriptionId());
-        if (!(filter.getFilter().getDescriptionId().startsWith("item.creatif"))){
+        if (!(filterStack instanceof IngredientFilterItemStack inputFilter)){
             CreateIngredientFilter.LOGGER.debug("Not ingredient filter - vanilla times");
             return original.call();
         }
         // cast filter to make custom functions available
-        IngredientFilterItemStack inputFilter = IngredientFilterItemStack.of(filter.getFilter());
+        // IngredientFilterItemStack inputFilter = IngredientFilterItemStack.of(filter.getFilter());
         IItemHandler availableItems = basin.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
         IFluidHandler availableFluids = basin.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 

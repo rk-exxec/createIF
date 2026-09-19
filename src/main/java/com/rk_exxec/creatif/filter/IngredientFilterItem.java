@@ -44,14 +44,10 @@ public class IngredientFilterItem extends ListFilterItem {
 
 		if(!getFilterOutputItem(filter).isEmpty())
 		{
-			list.add(Component.literal("< ")
-				.append(getFilterOutputItem(filter).getHoverName())
-				.withStyle(ChatFormatting.AQUA));
-
+			list.add(outputLabel(filter));
 		}
 
-		list.add((matchany ? CreatIFLang.translate("gui","match_any")
-			: CreatIFLang.translate("gui","match_all")).withStyle(ChatFormatting.DARK_AQUA));
+		list.add(matchingLabel(matchany));
 			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));
@@ -78,6 +74,17 @@ public class IngredientFilterItem extends ListFilterItem {
 			return Collections.emptyList();
 
 		return list;
+	}
+
+	public Component matchingLabel(boolean matchany){
+		return (matchany ? CreatIFLang.translate("gui","match_any").withStyle(ChatFormatting.GREEN)
+			: CreatIFLang.translate("gui","match_all").withStyle(ChatFormatting.RED));
+	}
+
+	public Component outputLabel(ItemStack filter){
+		return Component.literal("< ")
+				.append(getFilterOutputItem(filter).getHoverName())
+				.withStyle(ChatFormatting.AQUA);
 	}
 
 	@Override
