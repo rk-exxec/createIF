@@ -1,5 +1,8 @@
 {
   "item.creatif.ingredient_filter": "Ingredient Filter",
+  "item.creatif.ingredient_filter.tooltip.behaviour1": "Opens the _configuration interface_.",
+  "item.creatif.ingredient_filter.tooltip.condition1": "When R-Clicked",
+  "item.creatif.ingredient_filter.tooltip.summary": "_Matches ingredients_ against _basin contents_. Can be used in _Filter Slots_ of Create's Components. Output slot is optional.",
   "gui.creatif.match_any.description": "Will start processing recipe if one or more of the specified items are in the basin.",
   "gui.creatif.match_all.description": "Will start processing recipe if all of the specified items are in the basin.",
   "gui.creatif.match_any": "Match Any",
