@@ -56,7 +56,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 		if (!output.isEmpty())
 			output.setCount(1);
 
-		if (ingredients.isEmpty() || output.isEmpty())
+		if (ingredients.isEmpty())
 			return null;
 		if (doTransfer) {
 			menu.applyRecipe(ingredients, output);
