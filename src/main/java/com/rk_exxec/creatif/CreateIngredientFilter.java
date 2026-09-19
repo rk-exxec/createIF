@@ -10,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -55,12 +56,17 @@ public class CreateIngredientFilter
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
     public static final RegistryObject<MenuType<IngredientFilterMenu>> CONTENT_FILTER_MENU = MENU_TYPES.register("ingredient_filter", CreateIngredientFilter::createIngredientFilterMenu);
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-        new ResourceLocation(MODID, "main"),
+        ResourceLocation.fromNamespaceAndPath(MODID, "main"),
         () -> "1",
         "1"::equals,
         "1"::equals);
 
     public static final int I_SCREEN_Y_OFFSET = -10;
+
+    public static final boolean WAILA_ACTIVE = 
+                ModList.get().isLoaded("waila") ||
+                ModList.get().isLoaded("hwyla") ||
+                ModList.get().isLoaded("jade");
 
 
     private static MenuType<IngredientFilterMenu> createIngredientFilterMenu() {
