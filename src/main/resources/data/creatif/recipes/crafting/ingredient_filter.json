@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "show_notification": false,
+  "category": "misc",
+  "pattern": [
+    "ABC"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:prismarine_shard"
+    },
+    "B": {
+      "item": "create:filter"
+    },
+    "C": {
+      "item": "minecraft:prismarine_crystals"
+    }
+  },
+  "result": {
+    "item": "creatif:ingredient_filter",
+    "count": 1
+  }
+}
