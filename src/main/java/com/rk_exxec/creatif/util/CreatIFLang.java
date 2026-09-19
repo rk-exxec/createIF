@@ -12,4 +12,7 @@ public class CreatIFLang {
     public static MutableComponent translateDirect(String prefix, String key) {
         return Component.translatable(prefix + "." + key);
     }
+    public static MutableComponent translateRaw(String key) {
+        return Component.translatable(key);
+    }
 }

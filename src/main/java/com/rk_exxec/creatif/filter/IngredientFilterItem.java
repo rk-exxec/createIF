@@ -42,12 +42,22 @@ public class IngredientFilterItem extends ListFilterItem {
 
 		boolean matchany = filter.getOrCreateTag().getBoolean("Match Any");
 
+		if(!getFilterOutputItem(filter).isEmpty())
+		{
+			list.add(Component.literal("< ")
+				.append(getFilterOutputItem(filter).getHoverName())
+				.withStyle(ChatFormatting.AQUA));
+
+		}
+
 		list.add((matchany ? CreatIFLang.translate("gui","match_any")
 			: CreatIFLang.translate("gui","match_all")).withStyle(ChatFormatting.DARK_AQUA));
 			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));
-		int count = 0;
+
+
+		int count = 1;
 		for (int i = 0; i < filterItems.getSlots(); i++) {
 			if (count > 3) {
 				list.add(Component.literal("- ...")

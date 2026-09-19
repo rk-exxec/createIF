@@ -11,10 +11,16 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.ItemStackHandler;
 
-
+/**
+ * This is also where the magic happens
+ * 
+ * IngredientFilterItemStack
+ */
 public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemStack{ 
 
     public boolean matchAny;
+
+    // contains output filter item as separate field
     public FilterItemStack containedOutputItem;
 
 
@@ -38,13 +44,23 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
             .getBoolean("Match Any");
     }
 
-    public <T> boolean testIngredients(Level world, NonNullList<ItemStack> itemStacks, NonNullList<FluidStack> fluidStacks) {
-        int result=0;
-        int total=0;
-        // CreateIngredientFilter.LOGGER.debug("Made it to CFIS");
-        // CreateIngredientFilter.LOGGER.debug(list.toString());
+    @Override
+    public ItemStack item() {
+		return super.item();
+	}
 
-        
+//#region custom filter functions
+
+    /**
+     * Tests both items and liquids for filter match
+     * @param world
+     * @param itemStacks
+     * @param fluidStacks
+     * @return
+     */
+    public boolean testIngredients(Level world, NonNullList<ItemStack> itemStacks, NonNullList<FluidStack> fluidStacks) {
+        int result=0;
+        int total = containedItems.size();
 
         for (ItemStack stack : itemStacks) {
             CreateIngredientFilter.LOGGER.debug("Checking list item "+ stack);
@@ -55,7 +71,6 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
                 result += 1;
                 CreateIngredientFilter.LOGGER.debug("Item "+ stack + " matches");
             }
-            total += 1;
         }
     
 
@@ -66,7 +81,6 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
                 result += 1;
                 CreateIngredientFilter.LOGGER.debug("Fluid "+ stack + " matches");
             }
-            total += 1;
         }
         
         CreateIngredientFilter.LOGGER.debug(result + " out of " + total);
@@ -76,15 +90,11 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
         }
         else{
             CreateIngredientFilter.LOGGER.debug("Match all");
-            return result == containedItems.size() && containedItems.size() > 0;
+            return result == total && total > 0;
         }
     }
 
-    @Override
-    public ItemStack item() {
-		return super.item();
-	}
-
+    // below renamed filter functions act only on input filter
     public boolean testIngredients(Level world, ItemStack stack) {
 		return testIngredients(world, stack, false);
 	}
@@ -107,22 +117,21 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
                 return !isBlacklist;
         return isBlacklist;
     }
+//#endregion
 
-    // overriding these makes the filter act normally once used for the actual recipe check by the builtin create functions
+//#region default filter functions
+// overriding these makes the filter act normally once used for the actual recipe check by the builtin create functions using the ouput filter
+// they dont use blacklist or nbt checks
     @Override
     public boolean test(Level world, ItemStack stack, boolean matchNBT) {
-        if (containedOutputItem.test(world, stack, shouldRespectNBT))
-            return !isBlacklist;
-        return isBlacklist;
+        return containedOutputItem.test(world, stack, false);
     }
 
     @Override
     public boolean test(Level world, FluidStack stack, boolean matchNBT) {
-        if (containedOutputItem.test(world, stack, shouldRespectNBT))
-            return !isBlacklist;
-        return isBlacklist;
+        return containedOutputItem.test(world, stack, true);
     }
-    //========
+//#endregion
 
     private static void trimFilterTag(ItemStack filter) {
 		CompoundTag stackTag = filter.getTag();

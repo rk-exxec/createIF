@@ -3,7 +3,7 @@ package com.rk_exxec.creatif.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.rk_exxec.creatif.filter.IAbstractFilterScreenMixin;
+import com.rk_exxec.creatif.interfaces.IAbstractFilterScreenMixin;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
 import com.simibubi.create.content.logistics.filter.AbstractFilterScreen;
 

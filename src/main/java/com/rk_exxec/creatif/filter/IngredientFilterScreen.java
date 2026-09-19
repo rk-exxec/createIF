@@ -1,6 +1,7 @@
 package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.interfaces.IAbstractFilterScreenMixin;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;

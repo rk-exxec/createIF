@@ -1,26 +1,31 @@
 package com.rk_exxec.creatif.mixins;
 
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
+import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.rk_exxec.creatif.CreateIngredientFilter;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
+import com.rk_exxec.creatif.interfaces.IBasinBlockEntityMixin;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.common.brewing.BrewingRecipe;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -34,15 +39,19 @@ import net.minecraftforge.items.IItemHandler;
  */
 @Mixin(BasinOperatingBlockEntity.class)
 public class BasinOperatingBlockEntityMixin {
-    @Shadow 
+    @Shadow(remap=false) 
     protected Optional<BasinBlockEntity> getBasin(){
         throw new AssertionError("Shadow error");
     }
 
+    int numValidItems = 0;
+    int numValidFluids = 0;
+
     // wrap to check if ingredient filter is used, and if yes if conditions satisfied.
     @WrapMethod(method="getMatchingRecipes", remap=false)
     public List<Recipe<?>> checkIngredients(Operation<List<Recipe<?>>> original){
-
+        numValidItems = 0;
+        numValidFluids = 0;
         // check basin validity, copied from wrapped method
 		Optional<BasinBlockEntity> $basin = getBasin();
 		BasinBlockEntity basin;
@@ -68,24 +77,34 @@ public class BasinOperatingBlockEntityMixin {
         IItemHandler availableItems = basin.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
         IFluidHandler availableFluids = basin.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 
+
         // build list of available liquids and fluids in the basin
         NonNullList<ItemStack> inputItems = NonNullList.create();
         for (int i = 0; i < availableItems.getSlots(); i++) {
-            inputItems.add(availableItems.getStackInSlot(i));
+            var stack = availableItems.getStackInSlot(i);
+            if(stack.isEmpty() || Item.getId(stack.getItem()) == 0) continue;
+            inputItems.add(stack);
         }
         NonNullList<FluidStack> inputFluids = NonNullList.create();
         for (int tank = 0; tank < availableFluids.getTanks(); tank++) {
-            inputFluids.add(availableFluids.getFluidInTank(tank));
+            var stack = availableFluids.getFluidInTank(tank);
+            if(stack.isEmpty()) continue;
+            inputFluids.add(stack);
         }
+        numValidItems = inputItems.size();
+        numValidFluids = inputFluids.size();
         // test all liquids and fluids for requirement
         boolean ingredientsMatch = inputFilter.testIngredients(basin.getLevel(), inputItems, inputFluids);
         CreateIngredientFilter.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
 
+        // ((IBasinBlockEntityMixin)(Object)basin).setFilterIngredientStatus(ingredientsMatch);
         if (!ingredientsMatch)
-            // requireed ingredients are not available, skip recipe check
+            // required ingredients are not available, skip recipe check
             return new ArrayList<>();
         else{
+            
             var list = original.call();
+            CreateIngredientFilter.LOGGER.debug("Scoring recipe...");
             // originally this is sorted by least amount of ingredients first, which is not what I want
             list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items will be selected
             return list;
@@ -95,16 +114,53 @@ public class BasinOperatingBlockEntityMixin {
 
     // scores the overlap of input items and required ingredients
     int scoreRecipe(Recipe<?> recipe, IngredientFilterItemStack filter){
-        BasinRecipe basinRecipe = (BasinRecipe) recipe;
-
-        var recipeIngr = basinRecipe.getIngredients();
-        // Ingredient test = recipeIngr.get(0).getItems()
         int res = 0;
-        for (Ingredient ingredient : recipeIngr) {
-            for (ItemStack stack : ingredient.getItems()){
-                res += filter.testIngredients(getBasin().get().getLevel(),stack)?1:0;
+        CreateIngredientFilter.LOGGER.debug("Scoring recipe...");
+        try{
+            var recipeIngr = recipe.getIngredients();
+            
+
+            for (Ingredient ingredient : recipeIngr) {
+                for (ItemStack stack : ingredient.getItems()){
+                    // if any type of ingredient is specified in the filter, check next one
+                    if(filter.testIngredients(getBasin().get().getLevel(),stack)){
+                        res ++;
+                        break;
+                    } 
+                }
             }
+        } catch (Exception e) {
+            CreateIngredientFilter.LOGGER.debug("Scoring recipe failed: " + e.getCause() + e.getLocalizedMessage());
         }
+
+        CreateIngredientFilter.LOGGER.debug("Recipe Score: " + recipe.toString() + " = " + res);
         return res;
     }
+
+
+    // validate recipe ingredient count for matchAll type filtering
+    // @WrapOperation(remap=false, method = "matchBasinRecipe", 
+    // at = @At(value="INVOKE", 
+    // target="Lcom/simibubi/create/content/processing/basin/BasinRecipe;match(Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;Lnet/minecraft/world/item/crafting/Recipe;)Z"))
+    // public boolean validateNumIngredients(BasinBlockEntity basin, Recipe<?> recipe, Operation<Boolean> original){
+    //     boolean matchAll = ! IngredientFilterItemStack.of(basin.getFilter().getFilter()).matchAny;
+    //     CreateIngredientFilter.LOGGER.debug("Matching recipe type: " + recipe.toString());   
+    //     boolean result = true;
+    //     // only match if matchAll is selected and basin has items
+    //     if(matchAll && numValidItems != 0){
+    //         result &= recipe.getIngredients().size() == numValidItems;
+    //         CreateIngredientFilter.LOGGER.debug("Number of items: " + recipe.getIngredients().size() + "/" + numValidItems);    
+    //         CreateIngredientFilter.LOGGER.debug("items: " + recipe.getIngredients());   
+    //         // if its a basin recipe, check fluids, otherwise could be a shapeless which only has item inputs        
+    //         if(recipe instanceof BasinRecipe bRecipe && numValidFluids != 0){
+    //             CreateIngredientFilter.LOGGER.debug("Number of fluids: " + bRecipe.getFluidIngredients().size() + "/" + numValidFluids);
+    //             CreateIngredientFilter.LOGGER.debug("Fluids: " + bRecipe.getFluidIngredients() );
+    //             result &= numValidFluids == bRecipe.getFluidIngredients().size();
+    //         }
+    //     }
+
+    //     ((IBasinBlockEntityMixin) (Object) basin).setFilterRecipeStatus(result);
+
+    //     return result && original.call(basin,recipe);
+    // }
 }

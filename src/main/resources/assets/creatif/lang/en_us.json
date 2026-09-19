@@ -3,5 +3,7 @@
   "gui.creatif.match_any.description": "Will start processing recipe if one or more of the specified items are in the basin.",
   "gui.creatif.match_all.description": "Will start processing recipe if all of the specified items are in the basin.",
   "gui.creatif.match_any": "Match Any",
-  "gui.creatif.match_all": "Match All"
+  "gui.creatif.match_all": "Match All",
+  "gui.creatif.filter_recipe_mismatch": "Recipe doesn't fit filter.",
+  "gui.creatif.filter_ingredient_mismatch": "Items dont match filter."
 }
