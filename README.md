@@ -1,4 +1,4 @@
-# CreateIF - Create: IngredientFilter
+# CreatIF - Create: IngredientFilter
 
 You know those modpacks, where the author tries to be very forthcoming to their playerbase by enabling them to multiply yields of lower tiered recipes by just adding another item?
 
