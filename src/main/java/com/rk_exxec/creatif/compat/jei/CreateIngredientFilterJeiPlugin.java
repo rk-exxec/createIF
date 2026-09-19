@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.compat.jei;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 public class CreateIngredientFilterJeiPlugin implements IModPlugin {
 	@Override
 	public ResourceLocation getPluginUid() {
-		return ResourceLocation.fromNamespaceAndPath(CreateIngredientFilter.MODID, "jei_plugin");
+		return ResourceLocation.fromNamespaceAndPath(CreatIF.MODID, "jei_plugin");
 	}
 
 	@Override

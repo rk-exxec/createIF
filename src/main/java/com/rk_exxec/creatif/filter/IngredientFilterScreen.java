@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.interfaces.IAbstractFilterScreenMixin;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
@@ -27,7 +27,7 @@ import java.util.List;
 public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilterMenu> {
 
     private static final String CREATE_PREFIX = "gui.filter.";
-    private static final String MY_PREFIX = "gui." + CreateIngredientFilter.MODID;
+    private static final String MY_PREFIX = "gui." + CreatIF.MODID;
 
 	private Component allowN = CreateLang.translateDirect(CREATE_PREFIX + "allow_list");
 	private Component allowDESC = CreateLang.translateDirect(CREATE_PREFIX + "allow_list.description");
@@ -62,7 +62,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 
     @Override
     protected void init() {
-        setWindowOffset(-11, CreateIngredientFilter.I_SCREEN_Y_OFFSET);
+        setWindowOffset(-11, CreatIF.I_SCREEN_Y_OFFSET);
 		setWindowSize(Math.max(background.getWidth(), PLAYER_INVENTORY.getWidth()),
 			background.getHeight() + 4 + PLAYER_INVENTORY.getHeight());
 		((IAbstractFilterScreenMixin) (Object) this).onlySuperInit();
@@ -171,7 +171,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     }
 
     protected void sendOptionUpdate(IngOption option) {
-		CreateIngredientFilter.CHANNEL
+		CreatIF.CHANNEL
 			.sendToServer(new IngredientFilterScreenPacket(option));
 	}
 

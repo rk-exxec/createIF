@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
 import com.rk_exxec.creatif.interfaces.IFilteringBehaviourMixin;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
@@ -54,18 +54,18 @@ public class BasinOperatingBlockEntityMixin {
 			return new ArrayList<>();
 
 
-        CreateIngredientFilter.LOGGER.debug("This is the custom filter mixin");
+        CreatIF.LOGGER.debug("This is the custom filter mixin");
 
         FilteringBehaviour filter = basin.getFilter();
         if (filter == null){
-            CreateIngredientFilter.LOGGER.debug("filter is null");
+            CreatIF.LOGGER.debug("filter is null");
             return original.call();
         }
         FilterItemStack filterStack = ((IFilteringBehaviourMixin) (Object) filter).getFilterStack();
         // Check if the filter is of my type
-        CreateIngredientFilter.LOGGER.debug("Filter has class " + filter.getFilter().getDescriptionId());
+        CreatIF.LOGGER.debug("Filter has class " + filter.getFilter().getDescriptionId());
         if (!(filterStack instanceof IngredientFilterItemStack inputFilter)){
-            CreateIngredientFilter.LOGGER.debug("Not ingredient filter - vanilla times");
+            CreatIF.LOGGER.debug("Not ingredient filter - vanilla times");
             return original.call();
         }
         // cast filter to make custom functions available
@@ -91,7 +91,7 @@ public class BasinOperatingBlockEntityMixin {
         numValidFluids = inputFluids.size();
         // test all liquids and fluids for requirement
         boolean ingredientsMatch = inputFilter.testIngredients(basin.getLevel(), inputItems, inputFluids);
-        CreateIngredientFilter.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
+        CreatIF.LOGGER.debug("Ingredients " + (ingredientsMatch?"match":"dont match"));
 
         // ((IBasinBlockEntityMixin)(Object)basin).setFilterIngredientStatus(ingredientsMatch);
         if (!ingredientsMatch)
@@ -100,7 +100,7 @@ public class BasinOperatingBlockEntityMixin {
         else{
             
             var list = original.call();
-            CreateIngredientFilter.LOGGER.debug("Scoring recipe...");
+            CreatIF.LOGGER.debug("Scoring recipe...");
             // originally this is sorted by least amount of ingredients first, which is not what I want
             list.sort((r1,r2) -> scoreRecipe(r1, inputFilter) - scoreRecipe(r2, inputFilter)); // recipes that match most with available items will be selected
             return list;
@@ -111,7 +111,7 @@ public class BasinOperatingBlockEntityMixin {
     // scores the overlap of input items and required ingredients
     int scoreRecipe(Recipe<?> recipe, IngredientFilterItemStack filter){
         int res = 0;
-        CreateIngredientFilter.LOGGER.debug("Scoring recipe...");
+        CreatIF.LOGGER.debug("Scoring recipe...");
         try{
             var recipeIngr = recipe.getIngredients();
             
@@ -126,10 +126,10 @@ public class BasinOperatingBlockEntityMixin {
                 }
             }
         } catch (Exception e) {
-            CreateIngredientFilter.LOGGER.debug("Scoring recipe failed: " + e.getCause() + e.getLocalizedMessage());
+            CreatIF.LOGGER.debug("Scoring recipe failed: " + e.getCause() + e.getLocalizedMessage());
         }
 
-        CreateIngredientFilter.LOGGER.debug("Recipe Score: " + recipe.toString() + " = " + res);
+        CreatIF.LOGGER.debug("Recipe Score: " + recipe.toString() + " = " + res);
         return res;
     }
 

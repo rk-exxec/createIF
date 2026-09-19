@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
@@ -18,7 +18,7 @@ public class IngredientFilteringBehaviour extends FilteringBehaviour{
     public <T> boolean test(NonNullList<ItemStack> itemStacks, NonNullList<FluidStack> fluidStacks) {
         if(itemStacks.isEmpty() && fluidStacks.isEmpty()) return false;
         if(filter == null){
-            CreateIngredientFilter.LOGGER.debug("filter is null");
+            CreatIF.LOGGER.debug("filter is null");
             return  false;
         }
         IngredientFilterItemStack filterItemStack = (IngredientFilterItemStack)filter;

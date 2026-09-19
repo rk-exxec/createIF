@@ -3,7 +3,7 @@ package com.rk_exxec.creatif.compat.emi;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
@@ -59,7 +59,7 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 			.orElse(ItemStack.EMPTY);
 		if(!output.isEmpty()) output.setCount(1);
 		menu.applyRecipe(ingredients, output);
-		CreateIngredientFilter.CHANNEL.sendToServer(
+		CreatIF.CHANNEL.sendToServer(
 			new IngredientFilterScreenPacket(menu.createRecipeData()));
 		return true;
 	}

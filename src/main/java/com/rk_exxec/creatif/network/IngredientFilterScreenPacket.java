@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.network;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
@@ -46,14 +46,14 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
 
 	@Override
 	public boolean handle(Context context) {
-		CreateIngredientFilter.LOGGER.debug("Enter packet handler");
+		CreatIF.LOGGER.debug("Enter packet handler");
 		context.enqueueWork(() -> {
 			ServerPlayer player = context.getSender();
 			if (player == null)
 				return;
 			
             if (player.containerMenu instanceof IngredientFilterMenu c){
-				CreateIngredientFilter.LOGGER.debug("Option is " + option);
+				CreatIF.LOGGER.debug("Option is " + option);
                 if (option == IngOption.INGR_MATCHALL)
 					c.matchAny = false;
 				if (option == IngOption.INGR_MATCHANY)

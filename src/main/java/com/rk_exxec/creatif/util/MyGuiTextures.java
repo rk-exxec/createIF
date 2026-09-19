@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.util;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 
 import net.createmod.catnip.gui.TextureSheetSegment;
 import net.createmod.catnip.gui.UIRenderHelper;
@@ -27,7 +27,7 @@ public enum MyGuiTextures implements ScreenElement, TextureSheetSegment {
 	}
 
 	MyGuiTextures(String location, int startX, int startY, int width, int height) {
-		this(CreateIngredientFilter.MODID, location, startX, startY, width, height);
+		this(CreatIF.MODID, location, startX, startY, width, height);
 	}
 
 

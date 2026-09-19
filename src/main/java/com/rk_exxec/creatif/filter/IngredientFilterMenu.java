@@ -1,6 +1,7 @@
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.util.MyItems;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,7 +33,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
     protected void initAndReadInventory(ItemStack filter) {
         super.initAndReadInventory(filter);
 		CompoundTag tag = filter.getOrCreateTag();
-		outputGhostInventory = CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
+		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
 		respectNBT = tag.getBoolean("RespectNBT");
 		blacklist = tag.getBoolean("Blacklist");
         matchAny = tag.getBoolean("Match Any");
@@ -62,7 +63,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
     }
 
     public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
-        return new IngredientFilterMenu(CreateIngredientFilter.INGREDIENT_FILTER_MENU.get(), id, inventory, filter);
+        return new IngredientFilterMenu(CreatIF.INGREDIENT_FILTER_MENU.get(), id, inventory, filter);
     }
 
 	@Override
@@ -127,8 +128,8 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	
 	@Override
 	protected ItemStackHandler createGhostInventory() {
-		outputGhostInventory = CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
-		return CreateIngredientFilter.INGREDIENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
+		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
+		return MyItems.INGREDIENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
 	}
 
 

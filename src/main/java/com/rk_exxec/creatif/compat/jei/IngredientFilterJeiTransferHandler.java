@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 
@@ -26,7 +26,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 
 	@Override
 	public Optional<MenuType<IngredientFilterMenu>> getMenuType() {
-		return Optional.of(CreateIngredientFilter.INGREDIENT_FILTER_MENU.get());
+		return Optional.of(CreatIF.INGREDIENT_FILTER_MENU.get());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 			return null;
 		if (doTransfer) {
 			menu.applyRecipe(ingredients, output);
-			CreateIngredientFilter.CHANNEL.sendToServer(
+			CreatIF.CHANNEL.sendToServer(
 				new IngredientFilterScreenPacket(menu.createRecipeData()));
 		}
 		return null;

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterItemStack;
 import com.rk_exxec.creatif.interfaces.IBasinBlockEntityMixin;
 import com.rk_exxec.creatif.interfaces.IFilteringBehaviourMixin;
@@ -44,7 +44,7 @@ public class BasinBlockEntityMixin implements IBasinBlockEntityMixin {
 
         FilterItemStack filterItemStack = ((IFilteringBehaviourMixin)(Object)filtering).getFilterStack();
         String filterID = filtering.getFilter().getDescriptionId();
-        if((filterItemStack instanceof IngredientFilterItemStack ingredientFilterStack) && !CreateIngredientFilter.WAILA_ACTIVE){
+        if((filterItemStack instanceof IngredientFilterItemStack ingredientFilterStack) && !CreatIF.WAILA_ACTIVE){
             
             CreateLang.builder().add((CreatIFLang.translateRaw(filterID))
                             .withStyle(ChatFormatting.DARK_AQUA)).forGoggles(tooltip, 0);

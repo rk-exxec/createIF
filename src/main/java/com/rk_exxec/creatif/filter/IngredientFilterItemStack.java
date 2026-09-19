@@ -1,6 +1,6 @@
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreateIngredientFilter;
+import com.rk_exxec.creatif.CreatIF;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 
 import net.minecraft.core.NonNullList;
@@ -67,33 +67,33 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
         int total = containedItems.size();
 
         for (ItemStack stack : itemStacks) {
-            CreateIngredientFilter.LOGGER.debug("Checking list item "+ stack);
+            CreatIF.LOGGER.debug("Checking list item "+ stack);
             //skip air
             if(stack.isEmpty() || Item.getId(stack.getItem()) == 0) continue;
             // calls super class FilteringBehaviour method
             if(testIngredients(world, stack, shouldRespectNBT)){
                 result += 1;
-                CreateIngredientFilter.LOGGER.debug("Item "+ stack + " matches");
+                CreatIF.LOGGER.debug("Item "+ stack + " matches");
             }
         }
     
 
         for (FluidStack stack : fluidStacks) {
-            CreateIngredientFilter.LOGGER.debug("Checking list fluid "+ stack);
+            CreatIF.LOGGER.debug("Checking list fluid "+ stack);
             if(stack.isEmpty()) continue;
             if(testIngredients(world, stack, shouldRespectNBT)){
                 result += 1;
-                CreateIngredientFilter.LOGGER.debug("Fluid "+ stack + " matches");
+                CreatIF.LOGGER.debug("Fluid "+ stack + " matches");
             }
         }
         
-        CreateIngredientFilter.LOGGER.debug(result + " out of " + total);
+        CreatIF.LOGGER.debug(result + " out of " + total);
         if(matchAny){
-            CreateIngredientFilter.LOGGER.debug("Match any");
+            CreatIF.LOGGER.debug("Match any");
             return result > 0;
         }
         else{
-            CreateIngredientFilter.LOGGER.debug("Match all");
+            CreatIF.LOGGER.debug("Match all");
             return result == total && total > 0;
         }
     }
