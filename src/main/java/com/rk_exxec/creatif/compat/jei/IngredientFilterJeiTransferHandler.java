@@ -1,4 +1,4 @@
-package com.rk_exxec.creatif.jei;
+package com.rk_exxec.creatif.compat.jei;
 
 import java.util.ArrayList;
 import java.util.List;
