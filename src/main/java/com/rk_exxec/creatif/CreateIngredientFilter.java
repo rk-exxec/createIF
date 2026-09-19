@@ -112,7 +112,7 @@ public class CreateIngredientFilter
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
+        LOGGER.info("Sorry, you're not getting in tonight!");
 
         // Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
@@ -134,8 +134,8 @@ public class CreateIngredientFilter
         {
             event.enqueueWork(() -> registerIngredientFilterScreen());
             // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            // LOGGER.info("HELLO FROM CLIENT SETUP");
+            // LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
