@@ -13,7 +13,7 @@ However, Create seems to not have had that in mind when designing basin processi
 
 ## The solution: New filter type!
 
-![alt: empty filter ui](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/blank_filter.png) ![alt: filter item](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/icon.png)
+<img alt="alt: empty filter ui" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/blank_filter.png" width="400">  <img alt="alt: filter item" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/icon.png" width="400"> 
 
 Allows you to specify items that need to be in a basin before it may start on the left.  
 You can also use buckets/fluids to require that specific liquids are present.  
@@ -25,13 +25,13 @@ Optionally you can specify the target recipe in the slot on the right.
 
 A recipe for a modded item has these two variants (check out Compression Modpack):
 
-![alt: mixing recipe with 3 ingredients](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/recipe_less.png)![alt: mixing recipe with one more ingredient](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/recipe_more.png)
+<img alt="alt: mixing recipe with 3 ingredients" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/recipe_less.png" width="400"> <img alt="alt: mixing recipe with one more ingredient" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/recipe_more.png" width="400"> 
 
 Normally, no issue, but if the additional item runs out, the basin will never go back to the better recipe.
 
 However, with my filter, you can stop the basin if that happens.
 
-![alt: filter with full recipe](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe.png) ![alt: filter with only 4th item and match any config](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe_any.png)
+<img alt="alt: filter with full recipe" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe.png" width="400">  <img alt="alt: filter with only 4th item and match any config" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe_any.png" width="400"> 
 
 Both of the above prevent processing until the 4th ingredient is available.  
 Note the rightmost pair of buttons:
@@ -40,7 +40,7 @@ Note the rightmost pair of buttons:
 *   MatchAll waits until ALL are available.
 
 You can even nest normal filters, like here for colored concrete powder  
-![alt: example of nesting normal filters](https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/nested_filter.png)
+<img alt="alt: example of nesting normal filters" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/nested_filter.png" width="400"> 
 
 which produces following interactions:
 
