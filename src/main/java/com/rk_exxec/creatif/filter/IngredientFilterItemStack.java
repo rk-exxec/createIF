@@ -1,15 +1,16 @@
 package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.util.MyDataComponents;
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
-
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 /**
  * This is also where the magic happens
@@ -24,24 +25,23 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
     public FilterItemStack containedOutputItem;
 
 
-    public static IngredientFilterItemStack of(ItemStack filter) {
-		if (filter.hasTag() && filter.getItem() instanceof IngredientFilterItem item) {
-			trimFilterTag(filter);
+	public static IngredientFilterItemStack of(ItemStack filter) {
+		if (!filter.isComponentsPatchEmpty() && filter.getItem() instanceof IngredientFilterItem item) {
+			trimFilterComponents(filter);
 			return item.makeStackWrapper(filter);
 		}
 
 		return new IngredientFilterItemStack(filter);
 	}
 
+
     public IngredientFilterItemStack(ItemStack filter) {
         super(filter);
-        boolean defaults = !filter.hasTag();
+        boolean hasFilterItems = filter.has(AllDataComponents.FILTER_ITEMS);
         ItemStackHandler output = ((IngredientFilterItem) filter.getItem()).getFilterOutputHandler(filter);
         containedOutputItem = FilterItemStack.of(output.getStackInSlot(0));
 
-        matchAny = defaults ? false
-            : filter.getTag()
-            .getBoolean("Match Any");
+        matchAny = hasFilterItems && filter.getOrDefault(MyDataComponents.FILTER_MATCH_ANY, false);
     }
 
     @Override
@@ -137,11 +137,11 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
     }
 //#endregion
 
-    private static void trimFilterTag(ItemStack filter) {
-		CompoundTag stackTag = filter.getTag();
-		stackTag.remove("Enchantments");
-		stackTag.remove("AttributeModifiers");
+	private static void trimFilterComponents(ItemStack filter) {
+		filter.remove(DataComponents.ENCHANTMENTS);
+		filter.remove(DataComponents.ATTRIBUTE_MODIFIERS);
 	}
+
 }
 // }
 

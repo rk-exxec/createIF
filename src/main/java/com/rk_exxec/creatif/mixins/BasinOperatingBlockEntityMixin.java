@@ -21,10 +21,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 /**
  * 
@@ -34,6 +36,7 @@ import net.minecraftforge.items.IItemHandler;
  */
 @Mixin(BasinOperatingBlockEntity.class)
 public class BasinOperatingBlockEntityMixin {
+
     @Shadow(remap=false) 
     protected Optional<BasinBlockEntity> getBasin(){
         throw new AssertionError("Shadow error");
@@ -70,8 +73,10 @@ public class BasinOperatingBlockEntityMixin {
         }
         // cast filter to make custom functions available
         // IngredientFilterItemStack inputFilter = IngredientFilterItemStack.of(filter.getFilter());
-        IItemHandler availableItems = basin.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
-        IFluidHandler availableFluids = basin.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+
+        Level level = basin.getLevel();
+        IItemHandler availableItems = level.getCapability(ItemHandler.BLOCK, basin.getBlockPos(), null);
+        IFluidHandler availableFluids = level.getCapability(FluidHandler.BLOCK, basin.getBlockPos(), null);
 
 
         // build list of available liquids and fluids in the basin

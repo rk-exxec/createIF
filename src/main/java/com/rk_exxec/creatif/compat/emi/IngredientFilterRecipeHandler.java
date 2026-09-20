@@ -3,15 +3,16 @@ package com.rk_exxec.creatif.compat.emi;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
+import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.handler.EmiCraftContext;
 import dev.emi.emi.api.recipe.handler.EmiRecipeHandler;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
@@ -59,8 +60,8 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 			.orElse(ItemStack.EMPTY);
 		if(!output.isEmpty()) output.setCount(1);
 		menu.applyRecipe(ingredients, output);
-		CreatIF.CHANNEL.sendToServer(
-			new IngredientFilterScreenPacket(menu.createRecipeData()));
+		CatnipServices.NETWORK.sendToServer(
+			new IngredientFilterScreenPacket(IngOption.FILL_RECIPE, menu.createRecipeData()));
 		return true;
 	}
 

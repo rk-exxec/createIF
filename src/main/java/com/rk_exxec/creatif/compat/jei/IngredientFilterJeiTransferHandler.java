@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
-
+import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
+import com.rk_exxec.creatif.util.MyMenuTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IUniversalRecipeTransferHandler;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +27,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 
 	@Override
 	public Optional<MenuType<IngredientFilterMenu>> getMenuType() {
-		return Optional.of(CreatIF.INGREDIENT_FILTER_MENU.get());
+		return Optional.of(MyMenuTypes.INGREDIENT_FILTER.get());
 	}
 
 	@Override
@@ -60,8 +61,8 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 			return null;
 		if (doTransfer) {
 			menu.applyRecipe(ingredients, output);
-			CreatIF.CHANNEL.sendToServer(
-				new IngredientFilterScreenPacket(menu.createRecipeData()));
+			CatnipServices.NETWORK.sendToServer(
+				new IngredientFilterScreenPacket(IngOption.FILL_RECIPE, menu.createRecipeData()));
 		}
 		return null;
 	}

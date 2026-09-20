@@ -1,23 +1,22 @@
 {
   "type": "minecraft:crafting_shaped",
-  "show_notification": false,
   "category": "misc",
   "pattern": [
     "ABC"
   ],
   "key": {
     "A": {
-      "item": "minecraft:prismarine_shard"
+      "item": "create:zinc_nugget"
     },
     "B": {
       "item": "create:filter"
     },
     "C": {
-      "item": "minecraft:prismarine_crystals"
+      "item": "create:zinc_ingot"
     }
   },
   "result": {
-    "item": "creatif:ingredient_filter",
+    "id": "creatif:ingredient_filter",
     "count": 1
   }
 }

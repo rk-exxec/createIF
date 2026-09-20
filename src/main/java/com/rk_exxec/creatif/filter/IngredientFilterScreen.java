@@ -14,13 +14,12 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.utility.CreateLang;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
-
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -171,8 +170,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     }
 
     protected void sendOptionUpdate(IngOption option) {
-		CreatIF.CHANNEL
-			.sendToServer(new IngredientFilterScreenPacket(option));
+		CatnipServices.NETWORK.sendToServer(new IngredientFilterScreenPacket(option));
 	}
 
     @Override

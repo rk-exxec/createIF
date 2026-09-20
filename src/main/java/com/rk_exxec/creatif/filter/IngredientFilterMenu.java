@@ -1,15 +1,19 @@
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.util.MyDataComponents;
 import com.rk_exxec.creatif.util.MyItems;
+import com.rk_exxec.creatif.util.MyMenuTypes;
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
+import com.simibubi.create.foundation.item.ItemHelper;
+
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 
@@ -21,7 +25,13 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	boolean blacklist;
     public boolean matchAny;
 	public ItemStackHandler outputGhostInventory;
-    public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf buffer) {
+
+
+	public IngredientFilterMenu(int id, Inventory inventory, ItemStack stack){
+		this(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, stack);
+	}
+
+    public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         super(type, id, inventory, buffer);
     }
 
@@ -29,42 +39,55 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
         super(type, id, inventory, filter);
     }
 
-    @Override
-    protected void initAndReadInventory(ItemStack filter) {
-        super.initAndReadInventory(filter);
-		CompoundTag tag = filter.getOrCreateTag();
-		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
-		respectNBT = tag.getBoolean("RespectNBT");
-		blacklist = tag.getBoolean("Blacklist");
-        matchAny = tag.getBoolean("Match Any");
+	public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
+        return new IngredientFilterMenu(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, filter);
     }
 
-    @Override
-    protected void saveData(ItemStack filter) {
-        super.saveData(filter);
-		CompoundTag tag = filter.getOrCreateTag();
-		tag.put("Output", outputGhostInventory.serializeNBT());
-		tag.putBoolean("RespectNBT", respectNBT);
-		tag.putBoolean("Blacklist", blacklist);
-        tag.putBoolean("Match Any", matchAny);
+
+	@Override
+	protected void saveData(ItemStack filterItem) {
+		super.saveData(filterItem);
+		filterItem.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, respectNBT);
+		filterItem.set(AllDataComponents.FILTER_ITEMS_BLACKLIST, blacklist);
+		filterItem.set(MyDataComponents.FILTER_MATCH_ANY, matchAny);
+		saveOutputData(filterItem);
 		if (respectNBT || blacklist)
 			return;
 		for (int i = 0; i < ghostInventory.getSlots(); i++)
 			if (!ghostInventory.getStackInSlot(i)
 				.isEmpty())
 				return;
-		if(!outputGhostInventory.getStackInSlot(0).isEmpty()) return;
-		filter.setTag(null);
+
+		filterItem.remove(AllDataComponents.FILTER_ITEMS_RESPECT_NBT);
+		filterItem.remove(AllDataComponents.FILTER_ITEMS_BLACKLIST);
+		filterItem.remove(MyDataComponents.FILTER_MATCH_ANY);
+	}
+
+    @Override
+    protected void initAndReadInventory(ItemStack filter) {
+        super.initAndReadInventory(filter);
+
+		respectNBT = filter.getOrDefault(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, false);
+		blacklist = filter.getOrDefault(AllDataComponents.FILTER_ITEMS_BLACKLIST, false);
+        matchAny = filter.getOrDefault(MyDataComponents.FILTER_MATCH_ANY, false);
     }
+
+	protected void saveOutputData(ItemStack contentHolder) {
+		for (int i = 0; i < outputGhostInventory.getSlots(); i++) {
+			if (!outputGhostInventory.getStackInSlot(i).isEmpty()) {
+				contentHolder.set(MyDataComponents.FILTER_OUTPUT, ItemHelper.containerContentsFromHandler(outputGhostInventory));
+				return;
+			}
+		}
+		contentHolder.remove(MyDataComponents.FILTER_OUTPUT);
+	}
 
     public void setMatchAny(boolean value) {
         matchAny = value;
         saveData((ItemStack) contentHolder);
     }
 
-    public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
-        return new IngredientFilterMenu(CreatIF.INGREDIENT_FILTER_MENU.get(), id, inventory, filter);
-    }
+
 
 	@Override
 	protected int getPlayerInventoryXOffset() {
@@ -147,16 +170,17 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 		saveData((ItemStack) contentHolder);
 	}
 
+
 	public CompoundTag createRecipeData() {
 		CompoundTag data = new CompoundTag();
-		data.put("Items", ghostInventory.serializeNBT());
-		data.put("Output", outputGhostInventory.serializeNBT());
+		data.put("Items", ghostInventory.serializeNBT(player.registryAccess()));
+		data.put("Output", outputGhostInventory.serializeNBT(player.registryAccess()));
 		return data;
 	}
 
-	public void applyRecipeData(CompoundTag data) {
-		ghostInventory.deserializeNBT(data.getCompound("Items"));
-		outputGhostInventory.deserializeNBT(data.getCompound("Output"));
+	public void applyRecipeData(CompoundTag tag) {
+		ghostInventory.deserializeNBT(player.registryAccess(), tag.getCompound("Items"));
+		outputGhostInventory.deserializeNBT(player.registryAccess(), tag.getCompound("Output"));
 		saveData((ItemStack) contentHolder);
 	}
 

@@ -1,3 +1,3 @@
 # TODO
 
-- [x] check the sort actually works
+- Make sure mods.toml uses same version as gradle.properties
