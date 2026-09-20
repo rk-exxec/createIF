@@ -7,13 +7,13 @@
   ],
   "key": {
     "A": {
-      "item": "minecraft:prismarine_shard"
+      "item": "create:zinc_nugget"
     },
     "B": {
       "item": "create:filter"
     },
     "C": {
-      "item": "minecraft:prismarine_crystals"
+      "item": "create:zinc_ingot"
     }
   },
   "result": {
