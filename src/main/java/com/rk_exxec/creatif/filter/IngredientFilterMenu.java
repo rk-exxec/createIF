@@ -2,12 +2,16 @@ package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.util.MyItems;
+import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraft.world.inventory.ClickType;
@@ -21,6 +25,8 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	boolean blacklist;
     public boolean matchAny;
 	public ItemStackHandler outputGhostInventory;
+
+	private final int PLAYER_INV_SLOTS = 36;
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf buffer) {
         super(type, id, inventory, buffer);
     }
@@ -47,15 +53,25 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 		tag.putBoolean("RespectNBT", respectNBT);
 		tag.putBoolean("Blacklist", blacklist);
         tag.putBoolean("Match Any", matchAny);
-		if (respectNBT || blacklist)
+		if (respectNBT || blacklist || matchAny)
 			return;
 		for (int i = 0; i < ghostInventory.getSlots(); i++)
 			if (!ghostInventory.getStackInSlot(i)
 				.isEmpty())
 				return;
 		if(!outputGhostInventory.getStackInSlot(0).isEmpty()) return;
-		filter.setTag(null);
+		tag.remove("Items");
+		tag.remove("Output");
+		tag.remove("RespectNBT");
+		tag.remove("Blacklist");
+		tag.remove("Match Any");
     }
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	protected ItemStack createOnClient(FriendlyByteBuf extraData) {
+		return extraData.readItem();
+	}
 
     public void setMatchAny(boolean value) {
         matchAny = value;
@@ -63,7 +79,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
     }
 
     public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
-        return new IngredientFilterMenu(CreatIF.INGREDIENT_FILTER_MENU.get(), id, inventory, filter);
+        return new IngredientFilterMenu(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, filter);
     }
 
 	@Override
@@ -81,21 +97,22 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 		int x = 23;
 		int y = 25;
 		int nCols = 5;
+		int nRows = 4;
 		
-		for (int row = 0; row < 4; ++row)
-			for (int col = 0; col < 5; ++col)
+		for (int row = 0; row < nRows; ++row)
+			for (int col = 0; col < nCols; ++col)
 				this.addSlot(new SlotItemHandler(ghostInventory, col + row * nCols, x + col * 18, y + row * 18));
-		this.addSlot(new SlotItemHandler(outputGhostInventory, 0, 164, 52));
+		this.addSlot(new SlotItemHandler(outputGhostInventory, 0, 164, 52)); // position of output slot
 	}
 
 	@Override
 	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-		if (this.isInSlot(slotId) && clickTypeIn == ClickType.THROW && clickTypeIn == ClickType.CLONE) 
+		if (this.isInSlot(slotId) && (clickTypeIn == ClickType.THROW || clickTypeIn == ClickType.CLONE)) 
 			return;
 
 		ItemStack held = getCarried();
 		
-		int slot = slotId - 36;
+		int slot = slotId - PLAYER_INV_SLOTS;
 
 		if(slot>0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
 		// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
@@ -141,10 +158,13 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	}
 
 	public void applyRecipe(List<ItemStack> ingredients, ItemStack output) {
-		for (int i = 0; i < ghostInventory.getSlots(); i++)
+		for (int i = 0; i < ghostInventory.getSlots(); i++){
 			ghostInventory.setStackInSlot(i, i < ingredients.size() ? ingredients.get(i).copy() : ItemStack.EMPTY);
+			// getSlot(i+PLAYER_INV_SLOTS).setChanged();
+		}
 		outputGhostInventory.setStackInSlot(0, output.copy());
-		saveData((ItemStack) contentHolder);
+		// getSlot(ghostInventory.getSlots()+PLAYER_INV_SLOTS).setChanged();
+		// saveData((ItemStack) contentHolder.copy());
 	}
 
 	public CompoundTag createRecipeData() {
@@ -157,7 +177,7 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	public void applyRecipeData(CompoundTag data) {
 		ghostInventory.deserializeNBT(data.getCompound("Items"));
 		outputGhostInventory.deserializeNBT(data.getCompound("Output"));
-		saveData((ItemStack) contentHolder);
+		// saveData((ItemStack) contentHolder.copy());
 	}
 
 }

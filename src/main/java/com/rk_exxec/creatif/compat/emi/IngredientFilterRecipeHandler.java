@@ -6,6 +6,8 @@ import java.util.List;
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
+import com.rk_exxec.creatif.util.MyPackets;
+
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.handler.EmiCraftContext;
@@ -45,38 +47,29 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 		IngredientFilterMenu menu = context.getScreenHandler();
 		List<ItemStack> ingredients = new ArrayList<>();
 		for (EmiIngredient ingredient : recipe.getInputs()) {
-			ItemStack stack = firstItem(ingredient);
+			ItemStack stack = ingredient.getEmiStacks().get(0).getItemStack().copy();
 			if (!stack.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots()) {
 				stack.setCount(1);
 				ingredients.add(stack);
 			}
 		}
 
-		ItemStack output = recipe.getOutputs().stream()
-			.map(EmiStack::getItemStack)
-			.filter(stack -> !stack.isEmpty())
-			.findFirst()
-			.orElse(ItemStack.EMPTY);
+		ItemStack output = recipe.getOutputs().get(0).getItemStack().copy();
 		if(!output.isEmpty()) output.setCount(1);
-		menu.applyRecipe(ingredients, output);
-		CreatIF.CHANNEL.sendToServer(
+		// menu.applyRecipe(ingredients, output);
+		MyPackets.getChannel().sendToServer(
 			new IngredientFilterScreenPacket(menu.createRecipeData()));
 		return true;
 	}
 
 	private boolean isItem(EmiIngredient ingredient) {
-		return !firstItem(ingredient).isEmpty();
+		return ingredient.getEmiStacks().stream()
+			.map(EmiStack::getItemStack)
+			.filter(stack -> !stack.isEmpty()).findFirst().isPresent();
 	}
 
 	private boolean isItem(EmiStack stack) {
 		return !stack.getItemStack().isEmpty();
 	}
 
-	private ItemStack firstItem(EmiIngredient ingredient) {
-		return ingredient.getEmiStacks().stream()
-			.map(EmiStack::getItemStack)
-			.filter(stack -> !stack.isEmpty())
-			.findFirst()
-			.orElse(ItemStack.EMPTY);
-	}
 }

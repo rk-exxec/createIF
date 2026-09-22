@@ -6,6 +6,7 @@ import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyGuiTextures;
+import com.rk_exxec.creatif.util.MyPackets;
 import com.simibubi.create.content.logistics.filter.AbstractFilterScreen;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
@@ -171,7 +172,7 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     }
 
     protected void sendOptionUpdate(IngOption option) {
-		CreatIF.CHANNEL
+		MyPackets.getChannel()
 			.sendToServer(new IngredientFilterScreenPacket(option));
 	}
 

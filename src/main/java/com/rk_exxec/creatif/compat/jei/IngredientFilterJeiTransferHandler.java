@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
+import com.rk_exxec.creatif.util.MyMenuTypes;
+import com.rk_exxec.creatif.util.MyPackets;
 
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
@@ -19,6 +20,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
 public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTransferHandler<IngredientFilterMenu> {
+
+	public IngredientFilterJeiTransferHandler()
+	{
+
+	}
+
 	@Override
 	public Class<? extends IngredientFilterMenu> getContainerClass() {
 		return IngredientFilterMenu.class;
@@ -26,7 +33,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 
 	@Override
 	public Optional<MenuType<IngredientFilterMenu>> getMenuType() {
-		return Optional.of(CreatIF.INGREDIENT_FILTER_MENU.get());
+		return Optional.of(MyMenuTypes.INGREDIENT_FILTER.get());
 	}
 
 	@Override
@@ -46,22 +53,20 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 			}
 		}
 
-		ItemStack output = recipeSlots.getSlotViews(RecipeIngredientRole.OUTPUT).stream()
-			.map(slot -> slot.getDisplayedIngredient(VanillaTypes.ITEM_STACK))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.findFirst()
-			.orElse(ItemStack.EMPTY)
+		if (ingredients.isEmpty())
+			return null;
+
+		ItemStack output = recipeSlots.getSlotViews(RecipeIngredientRole.OUTPUT)
+			.get(0).getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(ItemStack.EMPTY)
 			.copy();
 		if (!output.isEmpty())
 			output.setCount(1);
 
-		if (ingredients.isEmpty())
-			return null;
+
 		if (doTransfer) {
 			menu.applyRecipe(ingredients, output);
-			CreatIF.CHANNEL.sendToServer(
-				new IngredientFilterScreenPacket(menu.createRecipeData()));
+			MyPackets.getChannel().sendToServer(
+			 	new IngredientFilterScreenPacket(menu.createRecipeData()));
 		}
 		return null;
 	}
