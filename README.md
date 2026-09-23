@@ -1,6 +1,6 @@
 # CreatIF - Create: IngredientFilter
 
-<a href="https://www.curseforge.com/minecraft/mc-mods/hexed-structures"> <img alt="CurseForge Downloads" src="https://img.shields.io/curseforge/dt/1652811?style=for-the-badge&logo=curseforge&logoColor=23F16436&label=CurseForge"></a> <a href="https://modrinth.com/mod/creatif" ><img alt="Modrinth Downloads" src="https://img.shields.io/modrinth/dt/creatifTfWCSyeN?style=for-the-badge&logo=modrinth&logoColor=%2300AF5C&logoSize=100&label=Modrinth"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/creatif"> <img alt="CurseForge Downloads" src="https://img.shields.io/curseforge/dt/1703463?style=for-the-badge&logo=curseforge&logoColor=23F16436&label=CurseForge"></a> <a href="https://modrinth.com/mod/creatif" ><img alt="Modrinth Downloads" src="https://img.shields.io/modrinth/dt/creatifTfWCSyeN?style=for-the-badge&logo=modrinth&logoColor=%2300AF5C&logoSize=100&label=Modrinth"></a>
 
 Versions: [Forge 1.20.1](https://github.com/rk-exxec/createIF/tree/mc1.20.1), [NeoForge 1.21.1](https://github.com/rk-exxec/createIF/tree/mc1.21.1)
 
