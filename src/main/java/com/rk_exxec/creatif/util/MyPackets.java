@@ -1,6 +1,5 @@
 package com.rk_exxec.creatif.util;
 
-import static net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT;
 import static net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER;
 
 import java.util.function.BiConsumer;
@@ -9,7 +8,6 @@ import java.util.function.Supplier;
 
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
-import com.rk_exxec.creatif.network.ReopenIngredientFilterScreenPacket;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
 import net.minecraft.core.BlockPos;
@@ -26,7 +24,6 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public enum MyPackets {
     FILL_FILTER(IngredientFilterScreenPacket.class, IngredientFilterScreenPacket::new, PLAY_TO_SERVER),
-    REOPEN_FILTER_MENU(ReopenIngredientFilterScreenPacket.class, ReopenIngredientFilterScreenPacket::new, PLAY_TO_SERVER),
     ;
 
     public static final ResourceLocation CHANNEL_NAME = ResourceLocation.fromNamespaceAndPath(CreatIF.MODID, "channel1");

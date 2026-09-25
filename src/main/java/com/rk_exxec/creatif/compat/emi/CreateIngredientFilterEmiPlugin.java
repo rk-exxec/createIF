@@ -6,7 +6,7 @@ import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 
-// @EmiEntrypoint
+@EmiEntrypoint
 public class CreateIngredientFilterEmiPlugin implements EmiPlugin {
 	@Override
 	public void register(EmiRegistry registry) {
