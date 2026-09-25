@@ -1,3 +1,22 @@
+/*=====================================================================
+CreatIF- Create: Ingredient Filter 
+Adds a new filter type to select basin recipes based on input
+Copyright (C) 2026  rk-exxec
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=====================================================================*/
+
 package com.rk_exxec.creatif.compat.emi;
 
 import java.util.ArrayList;
@@ -61,9 +80,9 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 				if (!ingredients.stream().anyMatch(i -> i.is(itemStack.getItemHolder()))) {
 					ingredients.add(itemStack);
 				}
-					if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
-				}
+				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
 			}
+		}
 		EmiStack outStack = recipe.getOutputs().get(0);
 		ItemStack output;
 		if(outStack.getKey() instanceof Fluid fluid)
