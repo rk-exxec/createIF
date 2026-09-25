@@ -38,8 +38,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
+
 
 
 public class IngredientFilterRecipeHandler implements EmiRecipeHandler<IngredientFilterMenu> {
@@ -74,7 +73,7 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 				ItemStack itemStack;
 				// get bucket of fluid
 				if(emiStack.getKey() instanceof Fluid fluid)
-					itemStack = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, emiStack.getNbt()));
+					itemStack = new ItemStack(fluid.getBucket());
 				else
 					itemStack = emiStack.getItemStack().copyWithCount(1);
 				if (!ingredients.stream().anyMatch(i -> i.is(itemStack.getItemHolder()))) {
@@ -86,7 +85,7 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 		EmiStack outStack = recipe.getOutputs().get(0);
 		ItemStack output;
 		if(outStack.getKey() instanceof Fluid fluid)
-			output = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, outStack.getNbt()));
+			output = new ItemStack(fluid.getBucket());
 		else
 			output = outStack.getItemStack().copyWithCount(1);
 

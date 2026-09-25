@@ -28,11 +28,10 @@ import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.MyMenuTypes;
-import com.rk_exxec.creatif.util.MyPackets;
 
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IUniversalRecipeTransferHandler;
@@ -41,8 +40,9 @@ import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+
 
 public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTransferHandler<IngredientFilterMenu> {
 	@Override
@@ -85,7 +85,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 					if(!stackList.isEmpty()) {
 						readSlot(stackList, ingredients, menu.ghostInventory.getSlots());
 					} else {
-						List<FluidStack> fluidsList = slot.getIngredients(ForgeTypes.FLUID_STACK).toList();
+						List<FluidStack> fluidsList = slot.getIngredients(NeoForgeTypes.FLUID_STACK).toList();
 						if(!fluidsList.isEmpty()) {
 							readSlot(fluidsList, ingredients, menu.ghostInventory.getSlots());
 						}
@@ -104,7 +104,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 				output = oItemStack.get().copyWithCount(1);
 			}
 			else{
-				Optional<FluidStack> oFluidStack = outSlot.getDisplayedIngredient(ForgeTypes.FLUID_STACK);
+				Optional<FluidStack> oFluidStack = outSlot.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK);
 				if(oFluidStack.isPresent())
 					output = FluidUtil.getFilledBucket(oFluidStack.get()).copyWithCount(1);
 			}

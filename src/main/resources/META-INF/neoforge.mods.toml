@@ -12,7 +12,7 @@ loaderVersion="[1,)" #mandatory
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
-license="LGPL v2.1"
+license="AGPL v3"
 
 # A URL to refer people to when problems occur with this mod
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
@@ -24,7 +24,7 @@ license="LGPL v2.1"
 modId="creatif" #mandatory
 
 # The version number of the mod
-version="1.0.1" #mandatory
+version="1.0.4" #mandatory
 
 # A display name for the mod
 displayName="CreatIF - Ingredient Filter" #mandatory
