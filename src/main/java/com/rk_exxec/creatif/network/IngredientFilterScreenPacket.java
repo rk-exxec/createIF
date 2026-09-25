@@ -20,15 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.network;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterItem;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 

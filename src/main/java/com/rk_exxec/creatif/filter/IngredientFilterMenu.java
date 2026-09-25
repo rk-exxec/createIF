@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.util.MyItems;
 import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;

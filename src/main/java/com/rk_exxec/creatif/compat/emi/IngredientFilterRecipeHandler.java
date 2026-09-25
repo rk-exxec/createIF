@@ -25,6 +25,7 @@ import java.util.List;
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
+import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyPackets;
 
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
@@ -36,6 +37,8 @@ import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -51,6 +54,19 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 				stacks.add(EmiStack.of(stack));
 		}
 		return new EmiPlayerInventory(stacks);
+	}
+
+	@Override 
+	public List<ClientTooltipComponent> getTooltip(EmiRecipe recipe, EmiCraftContext<IngredientFilterMenu> context) {
+		ArrayList<ClientTooltipComponent> tooltip = new ArrayList<>();
+		if (!canCraft(recipe, context)) {
+			tooltip.add(ClientTooltipComponent.create(CreatIFLang.translate("gui","emi.tooltip.needsinputoutput").getVisualOrderText()));
+		}
+		if(Screen.hasShiftDown()){
+			tooltip.add(ClientTooltipComponent.create(Component.keybind("shift").getVisualOrderText()));
+			tooltip.add(ClientTooltipComponent.create(CreatIFLang.translate("gui","emi.tooltip.shift").getVisualOrderText()));
+		}
+		return tooltip;
 	}
 
 	@Override
