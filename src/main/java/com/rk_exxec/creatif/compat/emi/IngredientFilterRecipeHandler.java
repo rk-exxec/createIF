@@ -3,6 +3,7 @@ package com.rk_exxec.creatif.compat.emi;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
@@ -14,8 +15,13 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+
 
 public class IngredientFilterRecipeHandler implements EmiRecipeHandler<IngredientFilterMenu> {
 	@Override
@@ -30,10 +36,7 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 
 	@Override
 	public boolean supportsRecipe(EmiRecipe recipe) {
-		return recipe.getOutputs().stream().anyMatch(this::isItem)
-			&& recipe.getInputs().stream().anyMatch(this::isItem);
-			// && (recipe instanceof BasinRecipe || recipe instanceof ShapelessRecipe ||
-			// 	recipe instanceof ShapedRecipe || recipe instanceof CompactingRecipe);
+		return !recipe.getInputs().isEmpty() && !recipe.getOutputs().isEmpty();
 	}
 
 	@Override
@@ -41,27 +44,42 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 		return supportsRecipe(recipe);
 	}
 
+
 	@Override
 	public boolean craft(EmiRecipe recipe, EmiCraftContext<IngredientFilterMenu> context) {
 		IngredientFilterMenu menu = context.getScreenHandler();
 		List<ItemStack> ingredients = new ArrayList<>();
 		for (EmiIngredient ingredient : recipe.getInputs()) {
-			ItemStack stack = firstItem(ingredient);
-			if (!stack.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots()) {
-				stack.setCount(1);
-				ingredients.add(stack);
+			if (!ingredient.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots())
+			for (EmiStack emiStack : ingredient.getEmiStacks()){
+				ItemStack itemStack;
+				// get bucket of fluid
+				if(emiStack.getKey() instanceof Fluid fluid)
+					itemStack = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, emiStack.getNbt()));
+				else
+					itemStack = emiStack.getItemStack().copyWithCount(1);
+				if (!ingredients.stream().anyMatch(i -> i.is(itemStack.getItemHolder()))) {
+					ingredients.add(itemStack);
+				}
+					if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
+				}
 			}
-		}
+		EmiStack outStack = recipe.getOutputs().get(0);
+		ItemStack output;
+		if(outStack.getKey() instanceof Fluid fluid)
+			output = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, outStack.getNbt()));
+		else
+			output = outStack.getItemStack().copyWithCount(1);
 
-		ItemStack output = recipe.getOutputs().stream()
-			.map(EmiStack::getItemStack)
-			.filter(stack -> !stack.isEmpty())
-			.findFirst()
-			.orElse(ItemStack.EMPTY);
-		if(!output.isEmpty()) output.setCount(1);
-		menu.applyRecipe(ingredients, output);
-		CatnipServices.NETWORK.sendToServer(
-			new IngredientFilterScreenPacket(IngOption.FILL_RECIPE, menu.createRecipeData()));
+		try{
+			menu.applyRecipe(ingredients, output);
+			CatnipServices.NETWORK.sendToServer(
+				new IngredientFilterScreenPacket(IngOption.FILL_RECIPE, menu.createRecipeData()));
+		}
+		catch(Exception e){
+			CreatIF.LOGGER.error("Error in setting items", e);
+			throw e;
+		}
 		return true;
 	}
 

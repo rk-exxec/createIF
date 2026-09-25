@@ -21,6 +21,7 @@ public class MyMenuTypes extends AllMenuTypes{
 	public static final MenuEntry<IngredientFilterMenu> INGREDIENT_FILTER =
 		register("ingredient_filter", IngredientFilterMenu::new, () -> IngredientFilterScreen::new);
     
+    @SuppressWarnings("hiding")
     private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
 		String name, ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {
 		return CreatIF.getRegistrate()
