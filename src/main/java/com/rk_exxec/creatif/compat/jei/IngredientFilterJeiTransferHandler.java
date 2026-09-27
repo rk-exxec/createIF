@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.rk_exxec.creatif.filter.IngredientStack;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.rk_exxec.creatif.util.MyPackets;
@@ -40,7 +41,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 
 public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTransferHandler<IngredientFilterMenu> {
 
@@ -59,16 +59,16 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 		return Optional.of(MyMenuTypes.INGREDIENT_FILTER.get());
 	}
 
-	<I> void readSlot(List<I> ingredients, List<ItemStack> target, int maxSize){
+	<I> void readSlot(List<I> ingredients, List<IngredientStack> target, int maxSize){
 			for(I stack : ingredients){
 				if (target.size() < maxSize) {
-					ItemStack copy;
+					IngredientStack copy;
 					if(stack instanceof FluidStack fluid)
-						copy = FluidUtil.getFilledBucket(fluid);
+						copy = IngredientStack.of(fluid);
 					else
-						copy = ((ItemStack) stack).copyWithCount(1);
+						copy = IngredientStack.of(((ItemStack) stack).copyWithCount(1));
 					// dont copy duplicates
-					if(!target.stream().anyMatch(i -> i.is(copy.getItemHolder()))) {
+					if(!target.stream().anyMatch(i -> i.equals(copy))) {
 						target.add(copy);
 					}
 					if(!Screen.hasShiftDown()) break; // shift needed to get all variants
@@ -82,49 +82,41 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 		IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
 
 		try{
-			List<ItemStack> ingredients = new ArrayList<>();
-			for(IRecipeSlotView slot : recipeSlots.getSlotViews()){		
-				if (slot.getRole() == RecipeIngredientRole.INPUT || slot.getRole() == RecipeIngredientRole.CATALYST){
-					List<ItemStack> stackList = slot.getItemStacks().toList();//getDisplayedIngredient(VanillaTypes.ITEM_STACK);
-					if(!stackList.isEmpty()) {
-						readSlot(stackList, ingredients, menu.ghostInventory.getSlots());
-					} else {
-						List<FluidStack> fluidsList = slot.getIngredients(ForgeTypes.FLUID_STACK).toList();
-						if(!fluidsList.isEmpty()) {
-							readSlot(fluidsList, ingredients, menu.ghostInventory.getSlots());
-						}
-					}
-				}
-			}
-			
-
+			List<IngredientStack> ingredients = 
+			extracted(menu, recipeSlots, menu.ghostInventory.getSlots());
 			if (ingredients.isEmpty())
 				return null;
 
-			IRecipeSlotView outSlot = recipeSlots.getSlotViews(RecipeIngredientRole.OUTPUT).get(0);
-			ItemStack output = ItemStack.EMPTY;
-			Optional<ItemStack> oItemStack = outSlot.getDisplayedItemStack();
-			if(!oItemStack.isEmpty()){
-				output = oItemStack.get().copyWithCount(1);
-			}
-			else{
-				Optional<FluidStack> oFluidStack = outSlot.getDisplayedIngredient(ForgeTypes.FLUID_STACK);
-				if(oFluidStack.isPresent())
-					output = FluidUtil.getFilledBucket(oFluidStack.get()).copyWithCount(1);
-			}
-
+			List<IngredientStack> outputs = 
+			extracted(menu, recipeSlots, menu.outputGhostInventory.getSlots());
 			if (doTransfer) {
-				CreatIF.LOGGER.debug("transferring " + ingredients.toString() + output.toString());
-				menu.applyRecipe(ingredients, output);
+				CreatIF.LOGGER.debug("transferring " + ingredients.toString() + outputs.toString());
+				menu.applyRecipe(ingredients, outputs);
 					MyPackets.getChannel().sendToServer(
 						new IngredientFilterScreenPacket(menu.createRecipeData()));
 				}
-
-			
 			return null;
 		}catch(Exception e){
 			CreatIF.LOGGER.error("Error in setting items", e);
 			throw e;
 		}
+	}
+
+	private List<IngredientStack> extracted(IngredientFilterMenu menu, IRecipeSlotsView recipeSlots, int slotCount) {
+		List<IngredientStack> results = new ArrayList<>();
+		for(IRecipeSlotView slot : recipeSlots.getSlotViews()){		
+			if (slot.getRole() == RecipeIngredientRole.INPUT || slot.getRole() == RecipeIngredientRole.CATALYST){
+				List<ItemStack> stackList = slot.getItemStacks().toList();//getDisplayedIngredient(VanillaTypes.ITEM_STACK);
+				if(!stackList.isEmpty()) {
+					readSlot(stackList, results, slotCount);
+				} else {
+					List<FluidStack> fluidsList = slot.getIngredients(ForgeTypes.FLUID_STACK).toList();
+					if(!fluidsList.isEmpty()) {
+						readSlot(fluidsList, results, slotCount);
+					}
+				}
+			}
+		}
+		return results;
 	}
 }

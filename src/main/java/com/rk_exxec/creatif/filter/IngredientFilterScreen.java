@@ -20,31 +20,36 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.filter;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.interfaces.IAbstractFilterScreenMixin;
+import com.rk_exxec.creatif.gui.IngredientSlot;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyGuiTextures;
 import com.rk_exxec.creatif.util.MyPackets;
-import com.simibubi.create.content.logistics.filter.AbstractFilterScreen;
+import com.simibubi.create.AllPackets;
+import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
-import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
+import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
+import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.lang.FontHelper.Palette;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
-
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilterMenu> {
+public class IngredientFilterScreen extends AbstractSimiContainerScreen<IngredientFilterMenu> {
 
     private static final String CREATE_PREFIX = "gui.filter.";
     private static final String MY_PREFIX = "gui." + CreatIF.MODID;
@@ -73,19 +78,26 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 	private IconButton resetButton;
 	private IconButton confirmButton;
 
+	private List<Rect2i> extraAreas = Collections.emptyList();
+
     MyGuiTextures background;
 
     public IngredientFilterScreen(IngredientFilterMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, AllGuiTextures.FILTER);
-		this.background = MyGuiTextures.CREATIF_INGREDIENT_FILTER;
+        this(menu, inventory, title, MyGuiTextures.CREATIF_INGREDIENT_FILTER);
     }
+
+	protected IngredientFilterScreen(IngredientFilterMenu menu, Inventory inv, Component title, MyGuiTextures background) {
+		super(menu, inv, title);
+		this.background = background;
+	}
 
     @Override
     protected void init() {
         setWindowOffset(-11, CreatIF.I_SCREEN_Y_OFFSET);
 		setWindowSize(Math.max(background.getWidth(), PLAYER_INVENTORY.getWidth()),
 			background.getHeight() + 4 + PLAYER_INVENTORY.getHeight());
-		((IAbstractFilterScreenMixin) (Object) this).onlySuperInit();
+		super.init();
+		extraAreas = List.of(new Rect2i(leftPos + background.getWidth(), topPos + background.getHeight() - 40, 80, 48));
 
 		int x = leftPos;
 		int y = topPos;
@@ -162,18 +174,15 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
     //     matchAllButton.setFocused(!menu.matchAny);
     // }
 
-    @Override
 	protected List<IconButton> getTooltipButtons() {
 		return Arrays.asList(blacklist, whitelist, respectNBT, ignoreNBT,matchAnyButton,matchAllButton);
 	}
 
-	@Override
 	protected List<MutableComponent> getTooltipDescriptions() {
 		return Arrays.asList(denyDESC.plainCopy(), allowDESC.plainCopy(), respectDataDESC.plainCopy(), ignoreDataDESC.plainCopy(),
         matchAnyDESC.plainCopy(), matchAllDESC.plainCopy());
 	}
 
-    @Override
     protected boolean isButtonEnabled(IconButton button) {
         if (button == blacklist)
 			return !menu.blacklist;
@@ -184,9 +193,9 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 		if (button == ignoreNBT)
 			return menu.respectNBT;
         if (button == matchAnyButton)
-            return !((IngredientFilterMenu) menu).matchAny; // this seems the wrong way aroung but in the AbstractFilterScreen it gets inverted again, idk why
+            return !menu.matchAny; // this seems the wrong way aroung but in the AbstractFilterScreen it gets inverted again, idk why
         if (button == matchAllButton)
-            return ((IngredientFilterMenu) menu).matchAny;
+            return menu.matchAny;
         return true;
     }
 
@@ -195,14 +204,8 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 			.sendToServer(new IngredientFilterScreenPacket(option));
 	}
 
-    @Override
 	protected int getTitleColor() {
 		return 0x00302B;
-	}
-
-	@Override
-	public List<Rect2i> getExtraAreas() {
-		return List.of(new Rect2i(leftPos + background.getWidth(), topPos + background.getHeight() - 40, 80, 48));
 	}
 
 	@Override
@@ -218,9 +221,138 @@ public class IngredientFilterScreen extends AbstractFilterScreen<IngredientFilte
 		graphics.drawString(font, title, x + (background.getWidth() - 8) / 2 - font.width(title) / 2, y + 4,
 			getTitleColor(), false);
 
-		GuiGameElement.of(menu.contentHolder).<GuiGameElement
-			.GuiRenderBuilder>at(x + background.getWidth() + 8, y + background.getHeight() - 52, -200)
+		GuiGameElement.of(menu.contentHolder).
+		<GuiGameElement.GuiRenderBuilder>at(x + background.getWidth() + 8, y + background.getHeight() - 52, -200)
 			.scale(4)
 			.render(graphics);
+	}
+
+	
+	@Override
+	protected void containerTick() {
+		// if(!menu.stillValid(menu.player))
+		// // if (!menu.player.getMainHandItem()
+		// // 	.equals(menu.contentHolder, false))
+		// 	menu.player.closeContainer();
+
+		super.containerTick();
+
+		handleTooltips();
+		handleIndicators();
+	}
+
+	protected void handleTooltips() {
+		List<IconButton> tooltipButtons = getTooltipButtons();
+
+		for (IconButton button : tooltipButtons) {
+			if (!button.getToolTip()
+				.isEmpty()) {
+				button.setToolTip(button.getToolTip()
+					.get(0));
+				button.getToolTip()
+					.add(TooltipHelper.holdShift(Palette.YELLOW, hasShiftDown()));
+			}
+		}
+
+		if (hasShiftDown()) {
+			List<MutableComponent> tooltipDescriptions = getTooltipDescriptions();
+			for (int i = 0; i < tooltipButtons.size(); i++)
+				fillToolTip(tooltipButtons.get(i), tooltipDescriptions.get(i));
+		}
+	}
+
+	public void handleIndicators() {
+		for (IconButton button : getTooltipButtons())
+			button.green = !isButtonEnabled(button);
+	}
+
+	private void fillToolTip(IconButton button, Component tooltip) {
+		if (!button.isHoveredOrFocused())
+			return;
+		List<Component> tip = button.getToolTip();
+		tip.addAll(TooltipHelper.cutTextComponent(tooltip, Palette.ALL_GRAY));
+	}
+
+	protected void contentsCleared() {}
+
+	protected void sendOptionUpdate(Option option) {
+		AllPackets.getChannel()
+			.sendToServer(new FilterScreenPacket(option));
+	}
+
+	@Override
+	public List<Rect2i> getExtraAreas() {
+		return extraAreas;
+	}
+
+	@Override
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+		renderFluids(guiGraphics);
+	}
+
+	@Override
+	protected void renderTooltip(GuiGraphics gfx, int x, int y) {
+		if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+			if(this.hoveredSlot instanceof IngredientSlot ingrSlot){
+				IngredientStack stack = ingrSlot.getIngredientStack();
+				if(stack.isFluid())
+					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack, x, y);
+				else
+					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack, x, y);
+			}
+			else super.renderTooltip(gfx, x, y);
+		}
+
+	}
+
+	protected List<Component> getTooltipFromContainerItem(IngredientStack stack) {
+		return  stack.getTooltipLines(this.minecraft.player, this.minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
+	}
+
+
+	private void renderFluids(GuiGraphics guiGraphics) {
+		for (int i = 0; i < menu.ghostInventory.getSlots(); i++) {
+			IngredientStack ingredient =
+					menu.ghostInventory.getIngredientStackInSlot(i);
+
+			if (!ingredient.isFluid())
+				continue;
+
+			int row = i / menu.INGR_INV_N_COLS;
+			int col = i % menu.INGR_INV_N_COLS;
+
+			int x = leftPos + menu.INGR_SLOT_OFFSET_X + col * 18;
+			int y = topPos + menu.INGR_SLOT_OFFSET_Y + row * 18;
+
+			IngredientStack.renderFluid(
+				guiGraphics,
+				ingredient.getFluidStack().orElse(FluidStack.EMPTY),
+				x,
+				y
+			);
+		}
+
+		for (int i = 0; i < menu.outputGhostInventory.getSlots(); i++) {
+			IngredientStack ingredient =
+					menu.outputGhostInventory.getIngredientStackInSlot(i);
+
+			if (!ingredient.isFluid())
+				continue;
+
+			int row = i / menu.OUTP_INV_N_COLS;
+			int col = i % menu.OUTP_INV_N_COLS;
+
+			int x = leftPos + menu.OUTP_SLOT_OFFSET_X + col * 18;
+			int y = topPos + menu.OUTP_SLOT_OFFSET_Y + row * 18;
+
+			IngredientStack.renderFluid(
+				guiGraphics,
+				ingredient.getFluidStack().orElse(FluidStack.EMPTY),
+				x,
+				y
+			);
+		}
 	}
 }

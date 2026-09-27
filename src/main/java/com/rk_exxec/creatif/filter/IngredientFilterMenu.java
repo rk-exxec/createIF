@@ -19,73 +19,121 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.filter;
 
+import com.rk_exxec.creatif.gui.IngredientSlot;
 import com.rk_exxec.creatif.util.MyItems;
 import com.rk_exxec.creatif.util.MyMenuTypes;
-import com.simibubi.create.content.logistics.filter.AbstractFilterMenu;
+import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
+import com.simibubi.create.foundation.gui.menu.IClearableMenu;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
 
 
-public class IngredientFilterMenu extends AbstractFilterMenu {
+public class IngredientFilterMenu extends AbstractContainerMenu implements IClearableMenu {
+	// MenuBase<T>
+	public Player player;
+	public Inventory playerInventory;
+	public ItemStack contentHolder;
     boolean respectNBT;
 	boolean blacklist;
+
+	public IngredientStackHandler ghostInventory;
     public boolean matchAny;
-	public ItemStackHandler outputGhostInventory;
+	public IngredientStackHandler outputGhostInventory;
 
 	private final int PLAYER_INV_SLOTS = 36;
+	public final int INPUT_INV_SIZE = 20;
+	public final int OUTPUT_INV_SIZE = 0;
+
+	public final int INV_OFFSET_X = 38;
+	public final int INV_OFFSET_Y = 134+22;
+
+	public final int INGR_SLOT_OFFSET_X = 23;
+	public final int INGR_SLOT_OFFSET_Y = 25;
+	public final int INGR_INV_N_COLS = 5;
+	public final int INGR_INV_N_ROWS = 4;
+
+	public final int OUTP_SLOT_OFFSET_X = 164;
+	public final int OUTP_SLOT_OFFSET_Y = 52;
+	public final int OUTP_INV_N_COLS = 1;
+	public final int OUTP_INV_N_ROWS = 1;
+	private final int SLOT_SPACING = 18;
+
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf buffer) {
-        super(type, id, inventory, buffer);
+		super(type, id);
+		init(inventory, createOnClient(buffer));
     }
 
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, ItemStack filter) {
-        super(type, id, inventory, filter);
+		super(type, id);
+		init(inventory, filter);
     }
 
-    @Override
+	public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
+        return new IngredientFilterMenu(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, filter);
+    }
+
+	protected void init(Inventory inv, ItemStack contentHolderIn) {
+		player = inv.player;
+		playerInventory = inv;
+		contentHolder = contentHolderIn;
+		initAndReadInventory(contentHolder);
+		addSlots();
+		broadcastChanges();
+	}
+
     protected void initAndReadInventory(ItemStack filter) {
-        super.initAndReadInventory(filter);
+        createGhostInventory(filter);
 		CompoundTag tag = filter.getOrCreateTag();
-		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
 		respectNBT = tag.getBoolean("RespectNBT");
 		blacklist = tag.getBoolean("Blacklist");
         matchAny = tag.getBoolean("Match Any");
+
     }
 
-    @Override
+	protected void createGhostInventory(ItemStack contentHolder) {
+		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
+		ghostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
+	}
+
+	@Override
+	public void removed(Player playerIn) {
+		super.removed(playerIn);
+		if (playerIn instanceof ServerPlayer) saveData(contentHolder);
+	}
+
     protected void saveData(ItemStack filter) {
-        super.saveData(filter);
 		CompoundTag tag = filter.getOrCreateTag();
+		tag.put("Items", ghostInventory.serializeNBT());
 		tag.put("Output", outputGhostInventory.serializeNBT());
 		tag.putBoolean("RespectNBT", respectNBT);
 		tag.putBoolean("Blacklist", blacklist);
         tag.putBoolean("Match Any", matchAny);
 		if (respectNBT || blacklist || matchAny)
 			return;
+		boolean empty = true;
 		for (int i = 0; i < ghostInventory.getSlots(); i++)
-			if (!ghostInventory.getStackInSlot(i)
-				.isEmpty())
-				return;
-		if(!outputGhostInventory.getStackInSlot(0).isEmpty()) return;
-		tag.remove("Items");
-		tag.remove("Output");
-		tag.remove("RespectNBT");
-		tag.remove("Blacklist");
-		tag.remove("Match Any");
+			empty &= ghostInventory.getIngredientStackInSlot(i).isEmpty();
+		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
+			empty &= outputGhostInventory.getIngredientStackInSlot(i).isEmpty();
+		if(!empty) return;
+		filter.setTag(null);
     }
 
-	@Override
+
 	@OnlyIn(Dist.CLIENT)
 	protected ItemStack createOnClient(FriendlyByteBuf extraData) {
 		return extraData.readItem();
@@ -96,31 +144,44 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
         saveData((ItemStack) contentHolder);
     }
 
-    public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
-        return new IngredientFilterMenu(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, filter);
-    }
-
-	@Override
 	protected int getPlayerInventoryXOffset() {
-		return 38;
+		return INV_OFFSET_X;
 	}
 
-	@Override
 	protected int getPlayerInventoryYOffset() {
-		return 134+22;
+		return INV_OFFSET_Y;
 	}
 
-	@Override
+	protected void addPlayerSlots(int x, int y) {
+		for (int row = 0; row < 3; ++row)
+			for (int col = 0; col < 9; ++col)
+				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, x + col * 18, y + row * 18));
+		for (int hotbarSlot = 0; hotbarSlot < 9; ++hotbarSlot)
+			this.addSlot(new Slot(playerInventory, hotbarSlot, x + hotbarSlot * 18, y + 58));
+	}
+
 	protected void addFilterSlots() {
-		int x = 23;
-		int y = 25;
-		int nCols = 5;
-		int nRows = 4;
+		int x = INGR_SLOT_OFFSET_X;
+		int y = INGR_SLOT_OFFSET_Y;
+		int s= SLOT_SPACING;
 		
-		for (int row = 0; row < nRows; ++row)
-			for (int col = 0; col < nCols; ++col)
-				this.addSlot(new SlotItemHandler(ghostInventory, col + row * nCols, x + col * 18, y + row * 18));
-		this.addSlot(new SlotItemHandler(outputGhostInventory, 0, 164, 52)); // position of output slot
+		for (int row = 0; row < INGR_INV_N_ROWS; ++row)
+			for (int col = 0; col < INGR_INV_N_COLS; ++col)
+				this.addSlot(new IngredientSlot(
+					ghostInventory, col + row * INGR_INV_N_COLS, x + col * s, y + row * s));
+
+		x = OUTP_SLOT_OFFSET_X;
+		y = OUTP_SLOT_OFFSET_Y;
+
+		for (int row = 0; row < OUTP_INV_N_ROWS; ++row)
+			for (int col = 0; col < OUTP_INV_N_ROWS; ++col)
+				this.addSlot(new IngredientSlot(
+					outputGhostInventory, col + row * OUTP_INV_N_COLS, x + col * s, y + row * s)); // position of output slot
+	}
+
+	protected void addSlots() {
+		addPlayerSlots(getPlayerInventoryXOffset(), getPlayerInventoryYOffset());
+		addFilterSlots();
 	}
 
 	@Override
@@ -128,61 +189,70 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 		if (this.isInSlot(slotId) && (clickTypeIn == ClickType.THROW || clickTypeIn == ClickType.CLONE)) 
 			return;
 
+		if (slotId < PLAYER_INV_SLOTS) {
+			super.clicked(slotId, dragType, clickTypeIn, player);
+			return;
+		}
+
 		ItemStack held = getCarried();
 		
 		int slot = slotId - PLAYER_INV_SLOTS;
 
-		if(slot>0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
-		// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
-		if(slot >= 0 && ghostInventory.getSlots() - slot <= 0 ) {
+		
+
+		if(slot>=0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
+
+		if(slot >= 0 && slot < INPUT_INV_SIZE+OUTPUT_INV_SIZE) {
+			IngredientStackHandler targetInv;
+			// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
+			if(slot >= INPUT_INV_SIZE) {
+				slot -= INPUT_INV_SIZE;
+				targetInv = outputGhostInventory;
+			}
+			else if(slot < INPUT_INV_SIZE)
+				targetInv = ghostInventory;
+			else return;
 
 			if (clickTypeIn == ClickType.CLONE) {
 				if (player.isCreative() && held.isEmpty()) {
-					ItemStack stackInSlot = outputGhostInventory.getStackInSlot(0)
-							.copy();
-					stackInSlot.setCount(stackInSlot.getMaxStackSize());
-					setCarried(stackInSlot);
+					IngredientStack stackInSlot;
+					stackInSlot = targetInv.getIngredientStackInSlot(slot).copy();
+					if(stackInSlot.isFluid())return;
+					stackInSlot.setCount(stackInSlot.itemStack.getMaxStackSize());
+					setCarried(stackInSlot.itemStack);
 					return;
 				}
 				return;
 			}
-
-			ItemStack insert;
+			IngredientStack insert;
 			if (held.isEmpty()) {
-				insert = ItemStack.EMPTY;
-			} else {
-				insert = held.copy();
-				insert.setCount(1);
+				insert = IngredientStack.EMPTY;
+			} // right clicking buckets or bottles gives raw liquid
+			else if(clickTypeIn == ClickType.PICKUP && dragType == 1 && GenericItemEmptying.canItemBeEmptied(player.level(), held)){
+				insert = IngredientStack.of(GenericItemEmptying.emptyItem(player.level(),held.copy(),true).getFirst().copy()).copyWithCount(1);
 			}
-			outputGhostInventory.setStackInSlot(0, insert);
+			else
+			{
+				insert = IngredientStack.of(held.copy()).copyWithCount(1);
+			}
+			targetInv.setStackInSlot(slot, insert);
 			getSlot(slotId).setChanged();
 		}
-		else super.clicked(slotId, dragType, clickTypeIn, player);
 	}
 
-	
-	@Override
-	protected ItemStackHandler createGhostInventory() {
-		outputGhostInventory = MyItems.INGREDIENT_FILTER_ITEM.get().getFilterOutputHandler(contentHolder);
-		return MyItems.INGREDIENT_FILTER_ITEM.get().getFilterItemHandler(contentHolder);
-	}
-
-
-	@Override
 	public void clearContents() {
 		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
 			outputGhostInventory.setStackInSlot(i, ItemStack.EMPTY);
-		super.clearContents();
+		for (int i = 0; i < ghostInventory.getSlots(); i++)
+			ghostInventory.setStackInSlot(i, ItemStack.EMPTY);
 	}
 
-	public void applyRecipe(List<ItemStack> ingredients, ItemStack output) {
+	public void applyRecipe(List<IngredientStack> ingredients, List<IngredientStack> outputs) {
 		for (int i = 0; i < ghostInventory.getSlots(); i++){
-			ghostInventory.setStackInSlot(i, i < ingredients.size() ? ingredients.get(i).copy() : ItemStack.EMPTY);
-			// getSlot(i+PLAYER_INV_SLOTS).setChanged();
+			ghostInventory.setStackInSlot(i, i < ingredients.size() ? ingredients.get(i).copy() : IngredientStack.EMPTY);
 		}
-		outputGhostInventory.setStackInSlot(0, output.copy());
-		// getSlot(ghostInventory.getSlots()+PLAYER_INV_SLOTS).setChanged();
-		// saveData((ItemStack) contentHolder.copy());
+		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
+			outputGhostInventory.setStackInSlot(i, i < outputs.size() ? outputs.get(i).copy() : IngredientStack.EMPTY);
 	}
 
 	public CompoundTag createRecipeData() {
@@ -195,7 +265,61 @@ public class IngredientFilterMenu extends AbstractFilterMenu {
 	public void applyRecipeData(CompoundTag data) {
 		ghostInventory.deserializeNBT(data.getCompound("Items"));
 		outputGhostInventory.deserializeNBT(data.getCompound("Output"));
-		// saveData((ItemStack) contentHolder.copy());
+		saveData((ItemStack) contentHolder);
 	}
+
+	@Override
+	public boolean stillValid(Player player) {
+		return playerInventory.getSelected() == contentHolder;
+	}
+
+	protected boolean isInSlot(int index) {
+		// Inventory has the hotbar as 0-8, but menus put the hotbar at 27-35
+		return index >= 27 && index - 27 == playerInventory.selected;
+	}
+
+
+	@Override
+	public boolean canTakeItemForPickAll(ItemStack stack, Slot slotIn) {
+		return slotIn.container == playerInventory && !this.isInSlot(slotIn.index);
+	}
+
+	@Override
+	public boolean canDragTo(Slot slotIn) {
+		return slotIn.container == playerInventory;
+	}
+
+	@Override
+	protected boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection) {
+		return false;
+	}
+
+	@Override
+	public ItemStack quickMoveStack(Player playerIn, int index) {
+		if (index < 36) {
+			Slot slot = this.slots.get(index);
+			ItemStack stackToInsert = slot.getItem();
+			for (int i = 0; i < ghostInventory.getSlots(); i++) {
+				IngredientStack stack = ghostInventory.getIngredientStackInSlot(i);
+				if (ItemHandlerHelper.canItemStacksStack(stack.itemStack, stackToInsert))
+					break;
+				if (stack.isEmpty()) {
+					ItemStack copy = stackToInsert.copy();
+					copy.setCount(1);
+					ghostInventory.setStackInSlot(i, copy);
+					getSlot(i + 36).setChanged();
+					break;
+				}
+			}
+		} else {
+			IngredientStack stack = ghostInventory.getIngredientStackInSlot(index - 36);
+			stack.itemStack.shrink(1);
+			if(!stack.isFluid())
+				ghostInventory.setStackInSlot(index - 36, stack.itemStack);
+			getSlot(index).setChanged();
+		}
+		return ItemStack.EMPTY;
+	}
+
 
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.rk_exxec.creatif.CreatIF;
 import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.rk_exxec.creatif.filter.IngredientStack;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyPackets;
@@ -42,7 +43,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 
 
 public class IngredientFilterRecipeHandler implements EmiRecipeHandler<IngredientFilterMenu> {
@@ -83,31 +83,10 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 	@Override
 	public boolean craft(EmiRecipe recipe, EmiCraftContext<IngredientFilterMenu> context) {
 		IngredientFilterMenu menu = context.getScreenHandler();
-		List<ItemStack> ingredients = new ArrayList<>();
-		for (EmiIngredient ingredient : recipe.getInputs()) {
-			if (!ingredient.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots())
-			for (EmiStack emiStack : ingredient.getEmiStacks()){
-				ItemStack itemStack;
-				// get bucket of fluid
-				if(emiStack.getKey() instanceof Fluid fluid)
-					itemStack = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, emiStack.getNbt()));
-				else
-					itemStack = emiStack.getItemStack().copyWithCount(1);
-				if (!ingredients.stream().anyMatch(i -> i.is(itemStack.getItemHolder()))) {
-					ingredients.add(itemStack);
-				}
-				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
-			}
-		}
-		EmiStack outStack = recipe.getOutputs().get(0);
-		ItemStack output;
-		if(outStack.getKey() instanceof Fluid fluid)
-			output = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, outStack.getNbt()));
-		else
-			output = outStack.getItemStack().copyWithCount(1);
-
+		List<IngredientStack> ingredients = getRecipeItems(recipe.getInputs(), menu);
+		List<IngredientStack> outputs = getRecipeItems(recipe.getOutputs(), menu);
 		try{
-			menu.applyRecipe(ingredients, output);
+			menu.applyRecipe(ingredients, outputs);
 			MyPackets.getChannel().sendToServer(
 				new IngredientFilterScreenPacket(menu.createRecipeData()));
 		}
@@ -116,5 +95,25 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 			throw e;
 		}
 		return true;
+	}
+
+	private List<IngredientStack> getRecipeItems(List<? extends EmiIngredient> recipeItems, IngredientFilterMenu menu) {
+		List<IngredientStack> ingredients = new ArrayList<>();
+		for (EmiIngredient ingredient : recipeItems) {
+			if (!ingredient.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots())
+			for (EmiStack emiStack : ingredient.getEmiStacks()){
+				IngredientStack itemStack;
+				// get bucket of fluid
+				if(emiStack.getKey() instanceof Fluid fluid)
+					itemStack = IngredientStack.of(new FluidStack(fluid, 1, emiStack.getNbt()));
+				else
+					itemStack = IngredientStack.of(emiStack.getItemStack().copyWithCount(1));
+				if (!ingredients.stream().anyMatch(i -> i.equals(itemStack))) {
+					ingredients.add(itemStack);
+				}
+				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
+			}
+		}
+		return ingredients;
 	}
 }
