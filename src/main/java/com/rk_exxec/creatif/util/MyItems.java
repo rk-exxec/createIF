@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -16,6 +16,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =====================================================================*/
+
 
 package com.rk_exxec.creatif.util;
 

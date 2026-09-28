@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.network;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
 import net.minecraft.nbt.CompoundTag;

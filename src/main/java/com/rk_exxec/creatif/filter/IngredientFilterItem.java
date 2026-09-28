@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientStack;
+import com.rk_exxec.creatif.gui.IngredientStackHandler;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.filter.*;
@@ -142,29 +145,24 @@ public class IngredientFilterItem extends FilterItem {
 	}
 
 	public IngredientStack getFilterOutputItem(ItemStack itemStack) {
-		// if (itemStack.hasTag() && itemStack.getOrCreateTag().getBoolean("Blacklist"))
-		// 	return null;
-		
 		return getFilterOutputHandler(itemStack).getIngredientStackInSlot(0);
 	}
  
-	@SuppressWarnings("unlikely-arg-type")
 	public static boolean testDirect(IngredientStack filter, ItemStack stack, boolean matchNBT) {
 		if (matchNBT) {
-			if (PackageItem.isPackage(filter.itemStack) && PackageItem.isPackage(stack))
-				return doPackagesHaveSameData(filter.itemStack, stack);
+			if (PackageItem.isPackage(filter.itemStack()) && PackageItem.isPackage(stack))
+				return doPackagesHaveSameData(filter.itemStack(), stack);
 
 			if(filter.isFluid()) return false;
-			else return ItemHandlerHelper.canItemStacksStack(filter.itemStack.copyWithCount(1), stack);
+			else return ItemHandlerHelper.canItemStacksStack(filter.itemStack().copyWithCount(1), stack);
 		}
 
-		if (PackageItem.isPackage(filter.itemStack) && PackageItem.isPackage(stack))
+		if (PackageItem.isPackage(filter.itemStack()) && PackageItem.isPackage(stack))
 			return true;
 
-		return !filter.isFluid() && ItemHelper.sameItem(filter.itemStack, stack);
+		return !filter.isFluid() && ItemHelper.sameItem(filter.itemStack(), stack);
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	public static boolean testDirect(IngredientStack filter, FluidStack stack, boolean matchNBT) {
 		if (matchNBT) {
 			if(filter.isFluid()) return filter.isFluidStackIdentical(stack);

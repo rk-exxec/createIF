@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IngredientStack;
+import com.rk_exxec.creatif.gui.IngredientStackHandler;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import net.minecraft.core.NonNullList;
@@ -147,7 +149,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
 
     public boolean testIngredients(Level world, ItemStack stack, boolean matchNBT) {
         for (IngredientStack filterItemStack : containedItems)
-            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack).test(world, stack, shouldRespectNBT))
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT))
                 return !isBlacklist;
             else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
             else return true;
@@ -156,7 +158,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
 
     public boolean testIngredients(Level world, FluidStack stack, boolean matchNBT) {
         for (IngredientStack filterItemStack : containedItems)
-            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack).test(world, stack, shouldRespectNBT))
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT))
                 return !isBlacklist;
             else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
             else return true;
@@ -169,7 +171,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
 // they dont use blacklist or nbt checks
     @Override
     public boolean test(Level world, ItemStack stack, boolean matchNBT) {
-        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack).test(world, stack, false);
+        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack()).test(world, stack, false);
         if (isEmpty())
 			return true;
 		return IngredientFilterItem.testDirect(containedOutputItem, stack, matchNBT);
@@ -177,7 +179,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
 
     @Override
     public boolean test(Level world, FluidStack stack, boolean matchNBT) {
-        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack).test(world, stack, false);
+        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack()).test(world, stack, false);
         if (isEmpty())
 			return true;
 		return IngredientFilterItem.testDirect(containedOutputItem, stack, matchNBT);

@@ -1,4 +1,23 @@
-package com.rk_exxec.creatif.filter;
+/*=====================================================================
+CreatIF - Create: Ingredient Filter 
+Adds a new filter type to select basin recipes based on input
+Copyright (C) 2026  rk-exxec
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=====================================================================*/
+
+package com.rk_exxec.creatif.gui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +31,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+/**
+ * A class mimicking the vanilla ItemStackHandler but providing support for fluid stacks as well using IngredientStack as base type
+ * IngredientStackHandler
+ */
 public class IngredientStackHandler {
-
-    
     protected NonNullList<IngredientStack> stacks;
 
     public IngredientStackHandler()
@@ -160,17 +181,5 @@ public class IngredientStackHandler {
     {
 
     }
-
-    // Just for Interface compliance, never called
-
-    // @Override
-    // public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-    //     throw new UnsupportedOperationException("Unimplemented method 'insertItem'");
-    // }
-
-    // @Override
-    // public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-    //     throw new UnsupportedOperationException("Unimplemented method 'extractItem'");
-    // }
     
 }

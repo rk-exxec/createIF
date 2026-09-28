@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -17,10 +17,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =====================================================================*/
 
-package com.rk_exxec.creatif.filter;
+package com.rk_exxec.creatif.gui;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.gui.IngredientSlot;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
@@ -298,9 +298,9 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 			if(this.hoveredSlot instanceof IngredientSlot ingrSlot){
 				IngredientStack stack = ingrSlot.getIngredientStack();
 				if(stack.isFluid())
-					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack, x, y);
+					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack(), x, y);
 				else
-					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack, x, y);
+					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack(), x, y);
 			}
 			else super.renderTooltip(gfx, x, y);
 		}

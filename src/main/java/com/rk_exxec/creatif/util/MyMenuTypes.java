@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -22,8 +22,8 @@ package com.rk_exxec.creatif.util;
 import org.checkerframework.checker.units.qual.C;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterMenu;
-import com.rk_exxec.creatif.filter.IngredientFilterScreen;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientFilterScreen;
 import com.simibubi.create.AllMenuTypes;
 import com.tterrag.registrate.builders.MenuBuilder.ForgeMenuFactory;
 import com.tterrag.registrate.builders.MenuBuilder.ScreenFactory;

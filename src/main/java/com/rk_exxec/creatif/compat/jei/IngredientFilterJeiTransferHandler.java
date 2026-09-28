@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterMenu;
-import com.rk_exxec.creatif.filter.IngredientStack;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientStack;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.rk_exxec.creatif.util.MyPackets;

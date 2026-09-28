@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -17,24 +17,23 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =====================================================================*/
 
-package com.rk_exxec.creatif.filter;
+package com.rk_exxec.creatif.gui;
 
-import com.rk_exxec.creatif.gui.IngredientSlot;
+import com.rk_exxec.creatif.filter.IngredientFilterItem;
 import com.rk_exxec.creatif.util.MyItems;
 import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.foundation.gui.menu.IClearableMenu;
+import com.simibubi.create.foundation.gui.menu.MenuBase;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -42,11 +41,7 @@ import net.minecraft.world.inventory.Slot;
 import java.util.List;
 
 
-public class IngredientFilterMenu extends AbstractContainerMenu implements IClearableMenu {
-	// MenuBase<T>
-	public Player player;
-	public Inventory playerInventory;
-	public ItemStack contentHolder;
+public class IngredientFilterMenu extends MenuBase<ItemStack> implements IClearableMenu {
     boolean respectNBT;
 	boolean blacklist;
 
@@ -73,12 +68,12 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 	private final int SLOT_SPACING = 18;
 
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf buffer) {
-		super(type, id);
+		super(type, id, inventory, buffer);
 		init(inventory, createOnClient(buffer));
     }
 
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, ItemStack filter) {
-		super(type, id);
+		super(type, id, inventory, filter);
 		init(inventory, filter);
     }
 
@@ -86,15 +81,9 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
         return new IngredientFilterMenu(MyMenuTypes.INGREDIENT_FILTER.get(), id, inventory, filter);
     }
 
-	protected void init(Inventory inv, ItemStack contentHolderIn) {
-		player = inv.player;
-		playerInventory = inv;
-		contentHolder = contentHolderIn;
-		initAndReadInventory(contentHolder);
-		addSlots();
-		broadcastChanges();
-	}
+	//#region data handling
 
+	@Override 
     protected void initAndReadInventory(ItemStack filter) {
         createGhostInventory(filter);
 		CompoundTag tag = filter.getOrCreateTag();
@@ -110,11 +99,6 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 	}
 
 	@Override
-	public void removed(Player playerIn) {
-		super.removed(playerIn);
-		if (playerIn instanceof ServerPlayer) saveData(contentHolder);
-	}
-
     protected void saveData(ItemStack filter) {
 		CompoundTag tag = filter.getOrCreateTag();
 		tag.put("Items", ghostInventory.serializeNBT());
@@ -134,15 +118,12 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
     }
 
 
+	@Override 
 	@OnlyIn(Dist.CLIENT)
 	protected ItemStack createOnClient(FriendlyByteBuf extraData) {
 		return extraData.readItem();
 	}
-
-    public void setMatchAny(boolean value) {
-        matchAny = value;
-        saveData((ItemStack) contentHolder);
-    }
+	//#endregion
 
 	protected int getPlayerInventoryXOffset() {
 		return INV_OFFSET_X;
@@ -152,101 +133,9 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 		return INV_OFFSET_Y;
 	}
 
-	protected void addPlayerSlots(int x, int y) {
-		for (int row = 0; row < 3; ++row)
-			for (int col = 0; col < 9; ++col)
-				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, x + col * 18, y + row * 18));
-		for (int hotbarSlot = 0; hotbarSlot < 9; ++hotbarSlot)
-			this.addSlot(new Slot(playerInventory, hotbarSlot, x + hotbarSlot * 18, y + 58));
-	}
 
-	protected void addFilterSlots() {
-		int x = INGR_SLOT_OFFSET_X;
-		int y = INGR_SLOT_OFFSET_Y;
-		int s= SLOT_SPACING;
-		
-		for (int row = 0; row < INGR_INV_N_ROWS; ++row)
-			for (int col = 0; col < INGR_INV_N_COLS; ++col)
-				this.addSlot(new IngredientSlot(
-					ghostInventory, col + row * INGR_INV_N_COLS, x + col * s, y + row * s));
 
-		x = OUTP_SLOT_OFFSET_X;
-		y = OUTP_SLOT_OFFSET_Y;
-
-		for (int row = 0; row < OUTP_INV_N_ROWS; ++row)
-			for (int col = 0; col < OUTP_INV_N_ROWS; ++col)
-				this.addSlot(new IngredientSlot(
-					outputGhostInventory, col + row * OUTP_INV_N_COLS, x + col * s, y + row * s)); // position of output slot
-	}
-
-	protected void addSlots() {
-		addPlayerSlots(getPlayerInventoryXOffset(), getPlayerInventoryYOffset());
-		addFilterSlots();
-	}
-
-	@Override
-	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-		if (this.isInSlot(slotId) && (clickTypeIn == ClickType.THROW || clickTypeIn == ClickType.CLONE)) 
-			return;
-
-		if (slotId < PLAYER_INV_SLOTS) {
-			super.clicked(slotId, dragType, clickTypeIn, player);
-			return;
-		}
-
-		ItemStack held = getCarried();
-		
-		int slot = slotId - PLAYER_INV_SLOTS;
-
-		
-
-		if(slot>=0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
-
-		if(slot >= 0 && slot < INPUT_INV_SIZE+OUTPUT_INV_SIZE) {
-			IngredientStackHandler targetInv;
-			// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
-			if(slot >= INPUT_INV_SIZE) {
-				slot -= INPUT_INV_SIZE;
-				targetInv = outputGhostInventory;
-			}
-			else if(slot < INPUT_INV_SIZE)
-				targetInv = ghostInventory;
-			else return;
-
-			if (clickTypeIn == ClickType.CLONE) {
-				if (player.isCreative() && held.isEmpty()) {
-					IngredientStack stackInSlot;
-					stackInSlot = targetInv.getIngredientStackInSlot(slot).copy();
-					if(stackInSlot.isFluid())return;
-					stackInSlot.setCount(stackInSlot.itemStack.getMaxStackSize());
-					setCarried(stackInSlot.itemStack);
-					return;
-				}
-				return;
-			}
-			IngredientStack insert;
-			if (held.isEmpty()) {
-				insert = IngredientStack.EMPTY;
-			} // right clicking buckets or bottles gives raw liquid
-			else if(clickTypeIn == ClickType.PICKUP && dragType == 1 && GenericItemEmptying.canItemBeEmptied(player.level(), held)){
-				insert = IngredientStack.of(GenericItemEmptying.emptyItem(player.level(),held.copy(),true).getFirst().copy()).copyWithCount(1);
-			}
-			else
-			{
-				insert = IngredientStack.of(held.copy()).copyWithCount(1);
-			}
-			targetInv.setStackInSlot(slot, insert);
-			getSlot(slotId).setChanged();
-		}
-	}
-
-	public void clearContents() {
-		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
-			outputGhostInventory.setStackInSlot(i, ItemStack.EMPTY);
-		for (int i = 0; i < ghostInventory.getSlots(); i++)
-			ghostInventory.setStackInSlot(i, ItemStack.EMPTY);
-	}
-
+	//#region EMI / JEI compat functions
 	public void applyRecipe(List<IngredientStack> ingredients, List<IngredientStack> outputs) {
 		for (int i = 0; i < ghostInventory.getSlots(); i++){
 			ghostInventory.setStackInSlot(i, i < ingredients.size() ? ingredients.get(i).copy() : IngredientStack.EMPTY);
@@ -266,6 +155,94 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 		ghostInventory.deserializeNBT(data.getCompound("Items"));
 		outputGhostInventory.deserializeNBT(data.getCompound("Output"));
 		saveData((ItemStack) contentHolder);
+	}
+//#endregion
+
+//#region slot manipulation
+	protected void addFilterSlots() {
+		int x = INGR_SLOT_OFFSET_X;
+		int y = INGR_SLOT_OFFSET_Y;
+		int s= SLOT_SPACING;
+		
+		for (int row = 0; row < INGR_INV_N_ROWS; ++row)
+			for (int col = 0; col < INGR_INV_N_COLS; ++col)
+				this.addSlot(new IngredientSlot(
+					ghostInventory, col + row * INGR_INV_N_COLS, x + col * s, y + row * s));
+
+		x = OUTP_SLOT_OFFSET_X;
+		y = OUTP_SLOT_OFFSET_Y;
+
+		for (int row = 0; row < OUTP_INV_N_ROWS; ++row)
+			for (int col = 0; col < OUTP_INV_N_ROWS; ++col)
+				this.addSlot(new IngredientSlot(
+					outputGhostInventory, col + row * OUTP_INV_N_COLS, x + col * s, y + row * s)); // position of output slot
+	}
+
+	@Override 
+	protected void addSlots() {
+		addPlayerSlots(getPlayerInventoryXOffset(), getPlayerInventoryYOffset());
+		addFilterSlots();
+	}
+
+
+
+	@Override 
+	public void clearContents() {
+		for (int i = 0; i < outputGhostInventory.getSlots(); i++)
+			outputGhostInventory.setStackInSlot(i, ItemStack.EMPTY);
+		for (int i = 0; i < ghostInventory.getSlots(); i++)
+			ghostInventory.setStackInSlot(i, ItemStack.EMPTY);
+	}
+
+	@Override
+	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
+		if (this.isInSlot(slotId) && (clickTypeIn == ClickType.THROW || clickTypeIn == ClickType.CLONE)) 
+			return;
+
+		if (slotId < PLAYER_INV_SLOTS) {
+			super.clicked(slotId, dragType, clickTypeIn, player);
+			return;
+		}
+		ItemStack held = getCarried();
+		int slot = slotId - PLAYER_INV_SLOTS;
+		if(slot>=0 && held.getItem() instanceof IngredientFilterItem) return; // prevent nesting
+
+		if(slot >= 0 && slot < INPUT_INV_SIZE+OUTPUT_INV_SIZE) {
+			IngredientStackHandler targetInv;
+			// check if output inventory was clicked, if yes write to that isnted of normal ghostInventory
+			if(slot >= INPUT_INV_SIZE) {
+				slot -= INPUT_INV_SIZE;
+				targetInv = outputGhostInventory;
+			}
+			else if(slot < INPUT_INV_SIZE)
+				targetInv = ghostInventory;
+			else return;
+
+			if (clickTypeIn == ClickType.CLONE) {
+				if (player.isCreative() && held.isEmpty()) {
+					IngredientStack stackInSlot;
+					stackInSlot = targetInv.getIngredientStackInSlot(slot).copy();
+					if(stackInSlot.isFluid())return;
+					stackInSlot.setCount(stackInSlot.itemStack().getMaxStackSize());
+					setCarried(stackInSlot.itemStack());
+					return;
+				}
+				return;
+			}
+			IngredientStack insert;
+			if (held.isEmpty()) {
+				insert = IngredientStack.EMPTY;
+			} // right clicking buckets or bottles gives raw liquid
+			else if(clickTypeIn == ClickType.PICKUP && dragType == 1 && GenericItemEmptying.canItemBeEmptied(player.level(), held)){
+				insert = IngredientStack.of(GenericItemEmptying.emptyItem(player.level(),held.copy(),true).getFirst().copy()).copyWithCount(1);
+			}
+			else
+			{
+				insert = IngredientStack.of(held.copy()).copyWithCount(1);
+			}
+			targetInv.setStackInSlot(slot, insert);
+			getSlot(slotId).setChanged();
+		}
 	}
 
 	@Override
@@ -301,7 +278,7 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 			ItemStack stackToInsert = slot.getItem();
 			for (int i = 0; i < ghostInventory.getSlots(); i++) {
 				IngredientStack stack = ghostInventory.getIngredientStackInSlot(i);
-				if (ItemHandlerHelper.canItemStacksStack(stack.itemStack, stackToInsert))
+				if (ItemHandlerHelper.canItemStacksStack(stack.itemStack(), stackToInsert))
 					break;
 				if (stack.isEmpty()) {
 					ItemStack copy = stackToInsert.copy();
@@ -313,13 +290,13 @@ public class IngredientFilterMenu extends AbstractContainerMenu implements IClea
 			}
 		} else {
 			IngredientStack stack = ghostInventory.getIngredientStackInSlot(index - 36);
-			stack.itemStack.shrink(1);
+			stack.itemStack().shrink(1);
 			if(!stack.isFluid())
-				ghostInventory.setStackInSlot(index - 36, stack.itemStack);
+				ghostInventory.setStackInSlot(index - 36, stack.itemStack());
 			getSlot(index).setChanged();
 		}
 		return ItemStack.EMPTY;
 	}
 
-
+//#endregion
 }
