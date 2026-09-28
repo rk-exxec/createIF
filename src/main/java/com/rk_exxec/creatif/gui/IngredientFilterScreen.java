@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.gui;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.gui.IngredientFilterMenu;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
@@ -69,10 +68,15 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
     private Component matchAllN = CreatIFLang.translateDirect(MY_PREFIX, "match_all");
     private Component matchAllDESC = CreatIFLang.translateDirect(MY_PREFIX, "match_all.description");
 
+	private Component rawFluidN = CreatIFLang.translateDirect(MY_PREFIX, "raw_fluid");
+    private Component rawFluidDESC = CreatIFLang.translateDirect(MY_PREFIX, "raw_fluid.description");
+    private Component itemFluidN = CreatIFLang.translateDirect(MY_PREFIX, "item_fluid");
+    private Component itemFluidDESC = CreatIFLang.translateDirect(MY_PREFIX, "item_fluid.description");
+
 	private IconButton whitelist, blacklist;
 	private IconButton respectNBT, ignoreNBT;
-    private IconButton matchAnyButton;
-    private IconButton matchAllButton;
+    private IconButton matchAnyButton,matchAllButton;
+    private IconButton rawFluidBtn, itemFluidBtn;
 
 
 	private IconButton resetButton;
@@ -164,6 +168,23 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
             sendOptionUpdate(IngOption.INGR_MATCHALL);
         });
         addRenderableWidgets(matchAnyButton,matchAllButton);
+
+		// matchAnyButton = new IconButton(x + btn_spacing*2 + btn_width*5, y + top_offset, AllIcons.I_WHITELIST_OR);
+        // matchAnyButton.setToolTip(matchAnyN);
+        // matchAnyButton.withCallback(() -> {
+        //     IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
+        //     menu.matchAny = true;
+        //     sendOptionUpdate(IngOption.INGR_MATCHANY);
+        // });
+
+        // matchAllButton = new IconButton(x + btn_spacing*2 + btn_width*6, y + top_offset, AllIcons.I_WHITELIST_AND);
+        // matchAllButton.setToolTip(matchAllN);
+        // matchAllButton.withCallback(() -> {
+        //     IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
+        //     menu.matchAny = false;
+        //     sendOptionUpdate(IngOption.INGR_MATCHALL);
+        // });
+        // addRenderableWidgets(matchAnyButton,matchAllButton);
         handleIndicators();
         
     }

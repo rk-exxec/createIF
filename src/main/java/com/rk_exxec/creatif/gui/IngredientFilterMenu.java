@@ -48,6 +48,7 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 	public IngredientStackHandler ghostInventory;
     public boolean matchAny;
 	public IngredientStackHandler outputGhostInventory;
+	public boolean useRawFluids;
 
 	private final int PLAYER_INV_SLOTS = 36;
 	public final int INPUT_INV_SIZE = 20;

@@ -32,7 +32,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class IngredientFilterScreenPacket extends SimplePacketBase {
 
 	public enum IngOption {
-		INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE;
+		INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE, RAW_FLUID, ITEM_FLUID;
 	}
 
 	private final IngOption option;
@@ -73,14 +73,23 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
 			
             if (player.containerMenu instanceof IngredientFilterMenu c){
 				CreatIF.LOGGER.debug("Option is " + option);
-                if (option == IngOption.INGR_MATCHALL)
-					c.matchAny = false;
-				if (option == IngOption.INGR_MATCHANY)
-					c.matchAny = true;
-				if (option == IngOption.FILL_RECIPE){
-					c.applyRecipeData(data);
-
-            	}
+				switch(option){
+					case INGR_MATCHALL:
+						c.matchAny = false;
+						break;
+					case INGR_MATCHANY:
+						c.matchAny = true;
+						break;
+					case FILL_RECIPE:
+						c.applyRecipeData(data);
+						break;
+					case RAW_FLUID:
+						c.useRawFluids = true;
+						break;
+					case ITEM_FLUID:
+						c.useRawFluids = false;
+						break;
+				}
 			}
 
 		});

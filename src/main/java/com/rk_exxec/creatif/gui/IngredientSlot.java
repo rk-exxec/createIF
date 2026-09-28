@@ -19,8 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.gui;
 
-import com.rk_exxec.creatif.gui.IngredientStack;
-
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
