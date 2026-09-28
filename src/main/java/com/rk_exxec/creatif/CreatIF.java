@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import com.rk_exxec.creatif.util.MyItems;
 import com.rk_exxec.creatif.util.MyMenuTypes;
 import com.rk_exxec.creatif.util.MyPackets;
+import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
@@ -53,7 +54,7 @@ public class CreatIF
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID)
-		.defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
+		.defaultCreativeTab((ResourceKey<CreativeModeTab>) AllCreativeModeTabs.BASE_CREATIVE_TAB.getKey())
 		.setTooltipModifierFactory(item ->
 			new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
 				.andThen(TooltipModifier.mapNull(KineticStats.create(item)))
