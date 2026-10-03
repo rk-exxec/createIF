@@ -142,16 +142,13 @@ public class IngredientStack {
     }
 
     public IngredientStack(CompoundTag nbt) {
-        ResourceLocation loc = ResourceLocation.parse(nbt.getString("id"));
-        int count = nbt.getInt("Count");
-        CompoundTag nestedNbt = nbt.getCompound("tag");
         if(nbt.getBoolean("isFluid")){
-            fluidStack = new FluidStack(ForgeRegistries.FLUIDS.getValue(loc),count, nestedNbt);
+            fluidStack = FluidStack.loadFluidStackFromNBT(nbt);
             itemStack = ItemStack.EMPTY;
             isFluid = true;
         }
         else {
-            itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(loc), count, nestedNbt);
+            itemStack = ItemStack.of(nbt);
             fluidStack = FluidStack.EMPTY;
             isFluid = false;
         }
@@ -170,17 +167,11 @@ public class IngredientStack {
         }
     }
 
-    public CompoundTag save(CompoundTag p_41740_) {
-        ResourceLocation resourcelocation = !isFluid()?
-            ForgeRegistries.ITEMS.getKey(getItem()):
-            ForgeRegistries.FLUIDS.getKey(getFluid());
-        p_41740_.putBoolean("isFluid", isFluid());
-        p_41740_.putString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
-        p_41740_.putByte("Count", (byte)this.getCount());
-        if (this.getTag() != null) {
-            p_41740_.put("tag", this.getTag().copy());
-        }
-        return p_41740_;
+    public CompoundTag save(CompoundTag tag) {
+        tag.putBoolean("isFluid", isFluid());
+        if(isFluid)fluidStack.writeToNBT(tag);
+        else itemStack.save(tag);
+        return tag;
     }
 
     public static IngredientStack of(CompoundTag nbt){
@@ -220,7 +211,7 @@ public class IngredientStack {
     }
 
     public boolean isEmpty() {
-        return this == EMPTY;
+        return this.itemStack.isEmpty() && this.fluidStack.isEmpty();
     }
 
     public Item getItem() {
