@@ -167,12 +167,20 @@ public class IngredientFilterItem extends FilterItem {
 
 	public static boolean testDirect(IngredientStack filter, FluidStack stack, boolean matchNBT) {
 		if (matchNBT) {
-			if(filter.isFluid()) return filter.isFluidStackIdentical(stack);
+			if(filter.isFluid()) return filter.isFluidEqual(stack);
 			else return false;
 		}
-		CreatIF.LOGGER.debug("Checking fluid");
 
-		return filter.isFluid() && filter.isFluidEqual(stack);
+		return filter.isFluid() && filter.getFluid().isSame(stack.getFluid());
+	}
+
+	public static boolean testDirect(FluidStack filter, FluidStack stack, boolean matchNBT) {
+		if(filter.isEmpty()) return false;
+		if (matchNBT) {
+			return filter.isFluidEqual(stack);
+		}
+
+		return filter.getFluid().isSame(stack.getFluid());
 	}
 
 	public static boolean doPackagesHaveSameData(ItemStack a, ItemStack b) {

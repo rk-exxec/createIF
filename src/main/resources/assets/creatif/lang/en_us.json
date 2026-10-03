@@ -8,7 +8,7 @@
   "gui.creatif.match_any": "Match Any",
   "gui.creatif.match_all": "Match All",
   "gui.creatif.item_fluid.description": "Filters fluids with respective fluid container.\n(default Create behavior)",
-  "gui.creatif.raw_fluid.description": "Filter fluids with raw fluid only. Fluid containers now filter only items.\nContainers may be emptied into a slot by right clicking to get the raw fluid.",
+  "gui.creatif.raw_fluid.description": "Filter fluids with raw fluid only. Fluid containers now filter only the item.\nContainers may be emptied into a slot by right clicking to get the raw fluid.",
   "gui.creatif.item_fluid": "Use fluid containers",
   "gui.creatif.raw_fluid": "Use raw fluids",
   "gui.creatif.item_fluid_enabled": "This item will match a _liquid_ ingredient due to selected settings!",

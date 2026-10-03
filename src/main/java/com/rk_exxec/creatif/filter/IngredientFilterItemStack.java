@@ -45,6 +45,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
     public List<IngredientStack> containedItems;
     public boolean shouldRespectNBT;
     public boolean isBlacklist;
+    public boolean rawFluid;
 
     // contains output filter item as separate field
     public IngredientStack containedOutputItem;
@@ -83,6 +84,10 @@ public class IngredientFilterItemStack extends FilterItemStack{
         matchAny = defaults ? false
             : filter.getTag()
             .getBoolean("Match Any");
+
+        rawFluid = defaults ? false
+            : filter.getTag()
+            .getBoolean("Raw Fluid");
     }
 
     @Override
@@ -133,7 +138,7 @@ public class IngredientFilterItemStack extends FilterItemStack{
         }
         else{
             CreatIF.LOGGER.debug("Match all");
-            return result == total && total > 0;
+            return result >= total && total > 0; // greater than possible if not using raw fluids and bucket matches both a liquid and bucket
         }
     }
 
@@ -148,20 +153,25 @@ public class IngredientFilterItemStack extends FilterItemStack{
         
 
     public boolean testIngredients(Level world, ItemStack stack, boolean matchNBT) {
-        for (IngredientStack filterItemStack : containedItems)
-            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT))
+        for (IngredientStack filterItemStack : containedItems){
+            if(filterItemStack.isFluid()) continue; // dont even bother testing fluid against item.
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT)) // test nested filter
                 return !isBlacklist;
             else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
             else return true;
+        }
         return isBlacklist;
     }
 
     public boolean testIngredients(Level world, FluidStack stack, boolean matchNBT) {
-        for (IngredientStack filterItemStack : containedItems)
-            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT))
+        for (IngredientStack filterItemStack : containedItems){
+            if(!rawFluid && filterItemStack.isFluid()) continue; // ignore fluid stacks if not using raw liquids
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT)) //test nested filter
                 return !isBlacklist;
+            else if(!rawFluid && !(IngredientFilterItem.testDirect(filterItemStack.tryGetFluid(world), stack, matchNBT) ^ isBlacklist)) continue;
             else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
             else return true;
+        }
         return isBlacklist;
     }
 //#endregion
