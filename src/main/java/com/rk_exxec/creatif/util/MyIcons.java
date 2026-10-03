@@ -30,8 +30,8 @@ public class MyIcons implements ScreenElement {
 		I_RAW_FLUID = next();
 
 	public static final MyIcons
-		I_EQUALS = newRow(),
-		I_NOT_EQUALS = next();
+		I_NOPE = newRow(),
+		I_NU_UH = next();
 
 	private static MyIcons next() {
 		return new MyIcons(++x, y);

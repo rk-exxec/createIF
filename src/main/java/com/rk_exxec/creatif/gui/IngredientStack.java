@@ -30,6 +30,8 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.rk_exxec.creatif.util.MyIcons;
+import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -45,6 +47,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -73,6 +76,8 @@ public class IngredientStack {
     final ItemStack itemStack;
     final FluidStack fluidStack;
     final boolean isFluid;
+    boolean emptied=false;
+    FluidStack emptiedStack;
 
 
     public IngredientStack(ItemStack item){
@@ -280,7 +285,16 @@ public class IngredientStack {
         else return itemStack.getOrCreateTag();
     }
 
-
+    public FluidStack tryGetFluid(Level world){
+        if(!emptied){
+            emptied=true;
+            if (GenericItemEmptying.canItemBeEmptied(world, itemStack)){
+                emptiedStack = GenericItemEmptying.emptyItem(world, itemStack, true).getFirst().copy();
+            }
+            else emptiedStack = FluidStack.EMPTY;
+        }
+        return emptiedStack;
+    }
 
     public static boolean matches(IngredientStack a, IngredientStack b) {
         return a.itemStack == b.itemStack && a.fluidStack == b.fluidStack;
@@ -366,6 +380,10 @@ public class IngredientStack {
 
     public void setAmount(int p_41765_) {
         this.setCount(p_41765_);
+    }
+
+    public boolean isFluidContainer(Level world){
+        return GenericItemEmptying.canItemBeEmptied(world, itemStack);
     }
 
     public boolean isFluidEqual(@NotNull FluidStack other)
@@ -475,7 +493,8 @@ public class IngredientStack {
             GuiGraphics guiGraphics,
             FluidStack fluid,
             int x,
-            int y
+            int y,
+            boolean err
         ) {
         if (fluid.isEmpty())
             return;
@@ -500,6 +519,8 @@ public class IngredientStack {
         float red   = ((tint >> 16) & 0xFF) / 255.0F;
         float green = ((tint >> 8) & 0xFF) / 255.0F;
         float blue  = (tint & 0xFF) / 255.0F;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
 
         RenderSystem.setShaderColor(red, green, blue, alpha);
 
@@ -512,7 +533,14 @@ public class IngredientStack {
             sprite
         );
 
+        if (err) {
+            RenderSystem.setShaderColor(1.0F, 0.0F, 0.0F, 0.75F);
+            MyIcons.I_NOPE
+            .render(guiGraphics, x, y);
+        }
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
     }
 }
 

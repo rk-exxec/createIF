@@ -311,7 +311,7 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-		renderFluids(guiGraphics);
+		renderFluids(guiGraphics, menu.useRawFluids);
 	}
 
 	@Override
@@ -334,7 +334,7 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 	}
 
 
-	private void renderFluids(GuiGraphics guiGraphics) {
+	private void renderFluids(GuiGraphics guiGraphics, boolean useRawFluid) {
 		for (int i = 0; i < menu.ghostInventory.getSlots(); i++) {
 			IngredientStack ingredient =
 					menu.ghostInventory.getIngredientStackInSlot(i);
@@ -352,7 +352,8 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 				guiGraphics,
 				ingredient.getFluidStack().orElse(FluidStack.EMPTY),
 				x,
-				y
+				y,
+				!useRawFluid
 			);
 		}
 
@@ -373,7 +374,8 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 				guiGraphics,
 				ingredient.getFluidStack().orElse(FluidStack.EMPTY),
 				x,
-				y
+				y,
+				!useRawFluid
 			);
 		}
 	}
