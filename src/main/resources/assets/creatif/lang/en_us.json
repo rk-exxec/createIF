@@ -7,6 +7,12 @@
   "gui.creatif.match_all.description": "Will start processing recipe if all of the specified items are in the basin.",
   "gui.creatif.match_any": "Match Any",
   "gui.creatif.match_all": "Match All",
+  "gui.creatif.item_fluid.description": "Filters fluids with respective fluid container.\n(default Create behavior)",
+  "gui.creatif.raw_fluid.description": "Filter fluids with raw fluid only. Fluid containers now filter only items.\nContainers may be emptied into a slot by right clicking to get the raw fluid.",
+  "gui.creatif.item_fluid": "Use fluid containers",
+  "gui.creatif.raw_fluid": "Use raw fluids",
+  "gui.creatif.item_fluid_enabled": "This item will match a _liquid_ ingredient due to selected settings!",
+  "gui.creatif.raw_fluid_disabled": "Raw fluids are disabled, this slot will not be used for filtering.",
   "gui.creatif.filter_recipe_mismatch": "Recipe doesn't fit filter.",
-  "gui.creatif.filter_ingredient_mismatch": "Items dont match filter."
+  "gui.creatif.filter_ingredient_mismatch": "Items don't match filter."
 }

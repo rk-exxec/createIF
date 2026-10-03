@@ -30,31 +30,60 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 
-public enum MyGuiTextures implements IGuiRenderable {
-		CREATIF_INGREDIENT_FILTER("ingredient_filter", 214, 134);
+public class MyButtons implements IGuiRenderable {
+
+	public static record Button(MyButtons def, MyButtons hov, MyButtons pr, MyButtons dis){
+		public MyButtons get(int state){
+			switch (state) {
+				case 0:
+					return def;
+				case 1:
+					return hov;
+				case 2:
+					return pr;
+				case 3:
+					return dis;
+				default:
+					return def;
+			}
+		}
+	}
+
+	public static final ResourceLocation location = ResourceLocation.fromNamespaceAndPath(CreatIF.MODID, "textures/gui/ingredient_filter.png");
+	public static final Button
+		RED = button( 0, 144,18, 18, 18),
+		BLUE = button(18,144,18, 18,18),
+		YELLOW = button(36,144,18, 18,18),
+		GREEN = button(54,144,18, 18,18),
+		GREY = button(72,144,18, 18,18);
     public static final int FONT_COLOR = 0x575F7A;
 
-	public final ResourceLocation location;
 	private final int width;
 	private final int height;
 	private final int startX;
 	private final int startY;
 
-    MyGuiTextures(String location, int width, int height) {
-		this(location, 0, 0, width, height);
+    MyButtons(int width, int height) {
+		this(0, 0, width, height);
 	}
 
-	MyGuiTextures(String location, int startX, int startY, int width, int height) {
-		this(CreatIF.MODID, location, startX, startY, width, height);
+	MyButtons(int startX, int startY, int width, int height, int variantDistY) {
+		this(startX, startY, width, height);
 	}
 
-
-    MyGuiTextures(String namespace, String location, int startX, int startY, int width, int height) {
-		this.location = ResourceLocation.fromNamespaceAndPath(namespace, "textures/gui/" + location + ".png");
+    MyButtons(int startX, int startY, int width, int height) {
 		this.width = width;
 		this.height = height;
 		this.startX = startX;
 		this.startY = startY;
+	}
+
+	public static MyButtons normal(int x, int y, int w, int h){
+		return new MyButtons(x,y, w, h);
+	}
+
+	public static Button button(int x, int y, int w, int h, int varSpaceY){
+		return new Button( normal(x,y,w,h), normal(x, y+varSpaceY, w, h), normal(x, y+2*varSpaceY, w, h), normal(0, y+3*varSpaceY, 18, 18));
 	}
 
 	@Override

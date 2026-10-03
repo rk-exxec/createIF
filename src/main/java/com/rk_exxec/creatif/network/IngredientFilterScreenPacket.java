@@ -32,7 +32,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class IngredientFilterScreenPacket extends SimplePacketBase {
 
 	public enum IngOption {
-		INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE, RAW_FLUID, ITEM_FLUID;
+		WHITELIST, BLACKLIST, RESPECT_DATA, IGNORE_DATA, UPDATE_FILTER_ITEM, INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE, RAW_FLUID, ITEM_FLUID;
 	}
 
 	private final IngOption option;
@@ -74,6 +74,23 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
             if (player.containerMenu instanceof IngredientFilterMenu c){
 				CreatIF.LOGGER.debug("Option is " + option);
 				switch(option){
+					case WHITELIST:
+						c.blacklist = false;
+						break;
+					case BLACKLIST:
+						c.blacklist = true;
+						break;
+					case RESPECT_DATA:
+						c.respectNBT = true;
+						break;
+					case IGNORE_DATA:
+						c.respectNBT = false;
+						break;
+					case UPDATE_FILTER_ITEM:
+						c.ghostInventory.setStackInSlot(
+								data.getInt("Slot"),
+								net.minecraft.world.item.ItemStack.of(data.getCompound("Item")));
+								break;
 					case INGR_MATCHALL:
 						c.matchAny = false;
 						break;

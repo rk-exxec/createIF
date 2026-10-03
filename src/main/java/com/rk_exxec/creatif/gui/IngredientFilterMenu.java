@@ -42,8 +42,8 @@ import java.util.List;
 
 
 public class IngredientFilterMenu extends MenuBase<ItemStack> implements IClearableMenu {
-    boolean respectNBT;
-	boolean blacklist;
+    public boolean respectNBT;
+	public boolean blacklist;
 
 	public IngredientStackHandler ghostInventory;
     public boolean matchAny;
@@ -70,12 +70,12 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, FriendlyByteBuf buffer) {
 		super(type, id, inventory, buffer);
-		init(inventory, createOnClient(buffer));
+		// init(inventory, createOnClient(buffer));
     }
 
     public IngredientFilterMenu(MenuType<?> type, int id, Inventory inventory, ItemStack filter) {
 		super(type, id, inventory, filter);
-		init(inventory, filter);
+		// init(inventory, filter);
     }
 
 	public static IngredientFilterMenu create(int id, Inventory inventory, ItemStack filter) {
@@ -91,6 +91,7 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 		respectNBT = tag.getBoolean("RespectNBT");
 		blacklist = tag.getBoolean("Blacklist");
         matchAny = tag.getBoolean("Match Any");
+		useRawFluids = tag.getBoolean("Raw Fluid");
 
     }
 
@@ -107,7 +108,8 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 		tag.putBoolean("RespectNBT", respectNBT);
 		tag.putBoolean("Blacklist", blacklist);
         tag.putBoolean("Match Any", matchAny);
-		if (respectNBT || blacklist || matchAny)
+		tag.putBoolean("Raw Fluid", useRawFluids);
+		if (respectNBT || blacklist || matchAny || useRawFluids)
 			return;
 		boolean empty = true;
 		for (int i = 0; i < ghostInventory.getSlots(); i++)

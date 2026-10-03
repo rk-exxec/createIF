@@ -60,10 +60,9 @@ public class IngredientFilterItem extends FilterItem {
 		List<Component> list = new ArrayList<>();
 
 		IngredientStackHandler filterItems = getFilterItemHandler(filter);
-		boolean blacklist = filter.getOrCreateTag()
-			.getBoolean("Blacklist");
-
+		boolean blacklist = filter.getOrCreateTag().getBoolean("Blacklist");
 		boolean matchany = filter.getOrCreateTag().getBoolean("Match Any");
+		boolean rawFluid = filter.getOrCreateTag().getBoolean("Raw Fluid");
 
 		if(!getFilterOutputItem(filter).isEmpty())
 		{
@@ -71,6 +70,9 @@ public class IngredientFilterItem extends FilterItem {
 		}
 
 		list.add(matchingLabel(matchany));
+
+		list.add(rawFluid ? CreatIFLang.translate("gui","item_fluid").withStyle(ChatFormatting.GRAY)
+			: CreatIFLang.translate("gui","raw_fluid").withStyle(ChatFormatting.AQUA));
 			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));

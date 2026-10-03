@@ -20,14 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.gui;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IconButtonRGB.Color;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket.IngOption;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyGuiTextures;
+import com.rk_exxec.creatif.util.MyIcons;
 import com.rk_exxec.creatif.util.MyPackets;
-import com.simibubi.create.AllPackets;
-import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
-import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
@@ -75,7 +74,7 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 
 	private IconButton whitelist, blacklist;
 	private IconButton respectNBT, ignoreNBT;
-    private IconButton matchAnyButton,matchAllButton;
+    private IconButton matchAnyButton, matchAllButton;
     private IconButton rawFluidBtn, itemFluidBtn;
 
 
@@ -123,85 +122,91 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 		int top_offset = background.getHeight() - 24;
 		int btn_width = 18;
 		int btn_spacing = 6;
+		x+=4 + btn_width;
+		y+=top_offset;
 
-		blacklist = new IconButton(x + btn_width, y + top_offset, AllIcons.I_BLACKLIST);
+		blacklist = new IconButtonRGB(x, y, AllIcons.I_BLACKLIST, Color.RED);
 		blacklist.withCallback(() -> {
-			menu.blacklist = true;
-			sendOptionUpdate(Option.BLACKLIST);
+			menu.blacklist = false;// inverse, bc clicking visible button(this) sets state to other one
+			sendOptionUpdate(IngOption.WHITELIST);
 		});
 		blacklist.setToolTip(denyN);
-		whitelist = new IconButton(x + btn_width*2, y + top_offset, AllIcons.I_WHITELIST);
+		whitelist = new IconButtonRGB(x, y, AllIcons.I_WHITELIST, Color.NONE);
 		whitelist.withCallback(() -> {
-			menu.blacklist = false;
-			sendOptionUpdate(Option.WHITELIST);
+			menu.blacklist = true;// inverse, bc clicking visible button(this) sets state to other one
+			sendOptionUpdate(IngOption.BLACKLIST);
 		});
 		whitelist.setToolTip(allowN);
 		addRenderableWidgets(blacklist, whitelist);
 
-		respectNBT = new IconButton(x + btn_spacing + btn_width*3, y + top_offset, AllIcons.I_RESPECT_NBT);
+		x+= btn_spacing + btn_width;
+		respectNBT = new IconButtonRGB(x, y, AllIcons.I_RESPECT_NBT, Color.YELLOW);
 		respectNBT.withCallback(() -> {
-			menu.respectNBT = true;
-			sendOptionUpdate(Option.RESPECT_DATA);
+			menu.respectNBT = false;// inverse, bc clicking visible button(this) sets state to other one
+			sendOptionUpdate(IngOption.IGNORE_DATA);
 		});
 		respectNBT.setToolTip(respectDataN);
-		ignoreNBT = new IconButton(x + btn_spacing + btn_width*4, y + top_offset, AllIcons.I_IGNORE_NBT);
+
+		ignoreNBT = new IconButtonRGB(x, y, AllIcons.I_IGNORE_NBT, Color.GREEN);
 		ignoreNBT.withCallback(() -> {
-			menu.respectNBT = false;
-			sendOptionUpdate(Option.IGNORE_DATA);
+			menu.respectNBT = true;// inverse, bc clicking visible button(this) sets state to other one
+			sendOptionUpdate(IngOption.RESPECT_DATA);
 		});
 		ignoreNBT.setToolTip(ignoreDataN);
 		addRenderableWidgets(respectNBT, ignoreNBT);
 
-        matchAnyButton = new IconButton(x + btn_spacing*2 + btn_width*5, y + top_offset, AllIcons.I_WHITELIST_OR);
+		x+= btn_spacing + btn_width;
+        matchAnyButton = new IconButtonRGB(x, y, AllIcons.I_WHITELIST_OR, Color.GREEN);
         matchAnyButton.setToolTip(matchAnyN);
         matchAnyButton.withCallback(() -> {
             IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
-            menu.matchAny = true;
-            sendOptionUpdate(IngOption.INGR_MATCHANY);
+            menu.matchAny = false; // inverse, bc clicking visible button(this) sets state to other one
+            sendOptionUpdate(IngOption.INGR_MATCHALL);
         });
 
-        matchAllButton = new IconButton(x + btn_spacing*2 + btn_width*6, y + top_offset, AllIcons.I_WHITELIST_AND);
+        matchAllButton = new IconButtonRGB(x, y, AllIcons.I_WHITELIST_AND, Color.NONE);
         matchAllButton.setToolTip(matchAllN);
         matchAllButton.withCallback(() -> {
             IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
-            menu.matchAny = false;
-            sendOptionUpdate(IngOption.INGR_MATCHALL);
+            menu.matchAny = true;// inverse, bc clicking visible button(this) sets state to other one
+            sendOptionUpdate(IngOption.INGR_MATCHANY);
         });
         addRenderableWidgets(matchAnyButton,matchAllButton);
 
-		// matchAnyButton = new IconButton(x + btn_spacing*2 + btn_width*5, y + top_offset, AllIcons.I_WHITELIST_OR);
-        // matchAnyButton.setToolTip(matchAnyN);
-        // matchAnyButton.withCallback(() -> {
-        //     IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
-        //     menu.matchAny = true;
-        //     sendOptionUpdate(IngOption.INGR_MATCHANY);
-        // });
+		x+= btn_spacing + btn_width;
+		itemFluidBtn = new IconButtonRGB(x, y, MyIcons.I_FLUID_BUCKET, Color.NONE);
+        itemFluidBtn.setToolTip(itemFluidN);
+        itemFluidBtn.withCallback(() -> {
+            IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
+            menu.useRawFluids = true;// inverse, bc clicking visible button(this) sets state to other one
+            sendOptionUpdate(IngOption.RAW_FLUID);
+        });
 
-        // matchAllButton = new IconButton(x + btn_spacing*2 + btn_width*6, y + top_offset, AllIcons.I_WHITELIST_AND);
-        // matchAllButton.setToolTip(matchAllN);
-        // matchAllButton.withCallback(() -> {
-        //     IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
-        //     menu.matchAny = false;
-        //     sendOptionUpdate(IngOption.INGR_MATCHALL);
-        // });
-        // addRenderableWidgets(matchAnyButton,matchAllButton);
+        rawFluidBtn = new IconButtonRGB(x, y, MyIcons.I_RAW_FLUID, Color.BLUE);
+        rawFluidBtn.setToolTip(rawFluidN);
+        rawFluidBtn.withCallback(() -> {
+            IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
+            menu.useRawFluids = false;// inverse, bc clicking visible button(this) sets state to other one
+            sendOptionUpdate(IngOption.ITEM_FLUID);
+        });
+        addRenderableWidgets(itemFluidBtn,rawFluidBtn);
         handleIndicators();
         
     }
 
-    // private void updateButtons(){
-    //     IngredientFilterMenu menu = (IngredientFilterMenu) this.menu;
-    //     matchAnyButton.setFocused(menu.matchAny);
-    //     matchAllButton.setFocused(!menu.matchAny);
-    // }
+	public void handleIndicators() {
+		for (IconButton button : getTooltipButtons())
+			button.visible = !isButtonEnabled(button);
+	}
 
 	protected List<IconButton> getTooltipButtons() {
-		return Arrays.asList(blacklist, whitelist, respectNBT, ignoreNBT,matchAnyButton,matchAllButton);
+		return Arrays.asList(blacklist, whitelist, respectNBT, ignoreNBT,
+			matchAnyButton, matchAllButton, itemFluidBtn, rawFluidBtn);
 	}
 
 	protected List<MutableComponent> getTooltipDescriptions() {
 		return Arrays.asList(denyDESC.plainCopy(), allowDESC.plainCopy(), respectDataDESC.plainCopy(), ignoreDataDESC.plainCopy(),
-        matchAnyDESC.plainCopy(), matchAllDESC.plainCopy());
+        matchAnyDESC.plainCopy(), matchAllDESC.plainCopy(), itemFluidDESC.plainCopy(), rawFluidDESC.plainCopy());
 	}
 
     protected boolean isButtonEnabled(IconButton button) {
@@ -217,6 +222,10 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
             return !menu.matchAny; // this seems the wrong way aroung but in the AbstractFilterScreen it gets inverted again, idk why
         if (button == matchAllButton)
             return menu.matchAny;
+		if (button == itemFluidBtn)
+            return menu.useRawFluids; // this seems the wrong way aroung but in the AbstractFilterScreen it gets inverted again, idk why
+        if (button == rawFluidBtn)
+            return !menu.useRawFluids;
         return true;
     }
 
@@ -282,10 +291,7 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 		}
 	}
 
-	public void handleIndicators() {
-		for (IconButton button : getTooltipButtons())
-			button.green = !isButtonEnabled(button);
-	}
+
 
 	private void fillToolTip(IconButton button, Component tooltip) {
 		if (!button.isHoveredOrFocused())
@@ -295,11 +301,6 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 	}
 
 	protected void contentsCleared() {}
-
-	protected void sendOptionUpdate(Option option) {
-		AllPackets.getChannel()
-			.sendToServer(new FilterScreenPacket(option));
-	}
 
 	@Override
 	public List<Rect2i> getExtraAreas() {
