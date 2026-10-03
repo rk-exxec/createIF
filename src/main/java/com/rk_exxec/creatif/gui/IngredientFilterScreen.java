@@ -35,6 +35,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 import net.createmod.catnip.gui.element.GuiGameElement;
 import net.createmod.catnip.lang.FontHelper.Palette;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
@@ -319,8 +320,11 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 		if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
 			if(this.hoveredSlot instanceof IngredientSlot ingrSlot){
 				IngredientStack stack = ingrSlot.getIngredientStack();
-				if(stack.isFluid())
-					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack(), x, y);
+				if(stack.isFluid()){
+					List<Component> tooltip = this.getTooltipFromContainerItem(stack);
+					if(!menu.useRawFluids) tooltip.add( CreatIFLang.translateRaw("gui.creatif.raw_fluid_disabled").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+					gfx.renderTooltip(this.font, tooltip, stack.getTooltipImage(), stack.itemStack(), x, y);
+				}
 				else
 					gfx.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack.itemStack(), x, y);
 			}
