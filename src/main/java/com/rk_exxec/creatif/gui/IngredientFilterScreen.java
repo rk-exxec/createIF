@@ -298,7 +298,8 @@ public class IngredientFilterScreen extends AbstractSimiContainerScreen<Ingredie
 		if (!button.isHoveredOrFocused())
 			return;
 		List<Component> tip = button.getToolTip();
-		tip.addAll(TooltipHelper.cutTextComponent(tooltip, Palette.ALL_GRAY));
+		for (String line : tooltip.getString().split("\\R"))
+			tip.addAll(TooltipHelper.cutStringTextComponent(line, Palette.ALL_GRAY));
 	}
 
 	protected void contentsCleared() {}

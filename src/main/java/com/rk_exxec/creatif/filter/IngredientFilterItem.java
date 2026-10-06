@@ -71,7 +71,7 @@ public class IngredientFilterItem extends FilterItem {
 
 		list.add(matchingLabel(matchany));
 
-		list.add(rawFluid ? CreatIFLang.translate("gui","item_fluid").withStyle(ChatFormatting.GRAY)
+		list.add(!rawFluid ? CreatIFLang.translate("gui","item_fluid").withStyle(ChatFormatting.GRAY)
 			: CreatIFLang.translate("gui","raw_fluid").withStyle(ChatFormatting.AQUA));
 			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
