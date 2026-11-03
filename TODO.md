@@ -7,8 +7,11 @@
 - [x] inherit from IconButton to make toggle button instead so more space available
 - [x] selecting item fluid type should maybe highlight raw fluid with additional tooltip?
 - [x] filter tooltip itself should not show AIR
-- [ ] test fluid filtering
-- [ ] pasting emi variants should spawn new list filter or attribute
+- [x] handle duplicate recipe items in filter
+- [x] test fluid filtering
+- [x] raw fluid default
 - [ ] more intuitive UI explanation with emi and raw fluid
-- [ ] handle duplicate items in filter
-- [ ] tooltip for raw liquid in item mode
+- [x] handle protocol update from 1.0 to 1.1
+
+## future
+- [ ] pasting emi variants should spawn new list filter or attribute
