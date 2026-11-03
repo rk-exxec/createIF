@@ -11,3 +11,4 @@
 - [ ] pasting emi variants should spawn new list filter or attribute
 - [ ] more intuitive UI explanation with emi and raw fluid
 - [ ] handle duplicate items in filter
+- [ ] tooltip for raw liquid in item mode

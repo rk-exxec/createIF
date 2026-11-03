@@ -106,6 +106,7 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 		List<IngredientStack> results = new ArrayList<>();
 		for(IRecipeSlotView slot : recipeSlots.getSlotViews()){		
 			if (slot.getRole() == RecipeIngredientRole.INPUT || slot.getRole() == RecipeIngredientRole.CATALYST){
+				// slot.getTagKey()
 				List<ItemStack> stackList = slot.getItemStacks().toList();//getDisplayedIngredient(VanillaTypes.ITEM_STACK);
 				if(!stackList.isEmpty()) {
 					readSlot(stackList, results, slotCount);
