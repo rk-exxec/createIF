@@ -3,7 +3,7 @@
 ## 1.1.0
 
 + toggle-able support for raw fluid filtering
-+ german translation
++ translations: italian (@BigBarza), german (me)
 - fixed liquid filtering
 - redid internal structure for hopefully faster port to 1.21.1 of any features
 
