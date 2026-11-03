@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.compat.emi;
 
-import java.text.AttributedCharacterIterator.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +28,6 @@ import com.rk_exxec.creatif.gui.IngredientStack;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyPackets;
-import com.simibubi.create.content.logistics.filter.AttributeFilterItem;
-import com.simibubi.create.content.logistics.filter.FilterItemStack.AttributeFilterItemStack;
-import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
 import dev.emi.emi.api.recipe.EmiRecipe;
@@ -39,16 +35,14 @@ import dev.emi.emi.api.recipe.handler.EmiCraftContext;
 import dev.emi.emi.api.recipe.handler.EmiRecipeHandler;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
-import dev.emi.emi.api.stack.ItemEmiStack;
-import dev.emi.emi.api.stack.TagEmiIngredient;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item.Properties;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -108,17 +102,21 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 
 	private List<IngredientStack> getRecipeItems(List<? extends EmiIngredient> recipeItems, IngredientFilterMenu menu) {
 		List<IngredientStack> ingredients = new ArrayList<>();
+		List<CompoundTag> seen = new ArrayList<>();
 		for (EmiIngredient ingredient : recipeItems) {
-			if (ingredient.isEmpty() || ingredients.size() >= menu.ghostInventory.getSlots()) continue;
+			if (ingredient.isEmpty()) continue;
 			for (EmiStack emiStack : ingredient.getEmiStacks()){
+				if (ingredients.size() >= menu.ghostInventory.getSlots()) break;
 				IngredientStack itemStack;
 				if(emiStack.getKey() instanceof Fluid fluid)
 					itemStack = IngredientStack.of(new FluidStack(fluid, 1, emiStack.getNbt()));
 				else
 					itemStack = IngredientStack.of(emiStack.getItemStack().copyWithCount(1));
 
-				// prevent duplicates
-				if (!ingredients.stream().anyMatch(i -> i.equals(itemStack))) {
+				// duplicatre check
+				CompoundTag identity = itemStack.save(new CompoundTag());
+				if (!seen.contains(identity)) {
+					seen.add(identity);
 					ingredients.add(itemStack);
 				}
 				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations

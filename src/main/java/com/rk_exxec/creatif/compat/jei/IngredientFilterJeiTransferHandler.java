@@ -37,6 +37,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IUniversalRecipeTransferHandler;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -67,8 +68,9 @@ public class IngredientFilterJeiTransferHandler implements IUniversalRecipeTrans
 						copy = IngredientStack.of(fluid);
 					else
 						copy = IngredientStack.of(((ItemStack) stack).copyWithCount(1));
-					// dont copy duplicates
-					if(!target.stream().anyMatch(i -> i.equals(copy))) {
+					// duplicate check
+					CompoundTag identity = copy.save(new CompoundTag());
+					if(target.stream().noneMatch(i -> i.save(new CompoundTag()).equals(identity))) {
 						target.add(copy);
 					}
 					if(!Screen.hasShiftDown()) break; // shift needed to get all variants
