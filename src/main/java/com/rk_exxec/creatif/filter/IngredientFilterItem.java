@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientStack;
+import com.rk_exxec.creatif.gui.IngredientStackHandler;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.filter.*;
@@ -34,8 +38,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
@@ -43,7 +47,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import java.util.Objects;
 
-public class IngredientFilterItem extends ListFilterItem {
+public class IngredientFilterItem extends FilterItem {
 
 	public IngredientFilterItem(Properties properties){
         super(properties);
@@ -55,11 +59,10 @@ public class IngredientFilterItem extends ListFilterItem {
 
 		List<Component> list = new ArrayList<>();
 
-		ItemStackHandler filterItems = getFilterItemHandler(filter);
-		boolean blacklist = filter.getOrCreateTag()
-			.getBoolean("Blacklist");
-
+		IngredientStackHandler filterItems = getFilterItemHandler(filter);
+		boolean blacklist = filter.getOrCreateTag().getBoolean("Blacklist");
 		boolean matchany = filter.getOrCreateTag().getBoolean("Match Any");
+		boolean rawFluid = filter.getOrCreateTag().getBoolean("Raw Fluid");
 
 		if(!getFilterOutputItem(filter).isEmpty())
 		{
@@ -67,6 +70,9 @@ public class IngredientFilterItem extends ListFilterItem {
 		}
 
 		list.add(matchingLabel(matchany));
+
+		list.add(!rawFluid ? CreatIFLang.translate("gui","item_fluid").withStyle(ChatFormatting.GRAY)
+			: CreatIFLang.translate("gui","raw_fluid").withStyle(ChatFormatting.AQUA));
 			
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));
@@ -80,7 +86,7 @@ public class IngredientFilterItem extends ListFilterItem {
 				break;
 			}
 
-			ItemStack filterStack = filterItems.getStackInSlot(i);
+			IngredientStack filterStack = filterItems.getIngredientStackInSlot(i);
 			if (filterStack.isEmpty())
 				continue;
 			list.add(Component.literal("- ")
@@ -116,17 +122,16 @@ public class IngredientFilterItem extends ListFilterItem {
 		return new IngredientFilterItemStack(filter);
 	}
 
-	@Override 
-	public ItemStackHandler getFilterItemHandler(ItemStack stack) {
-		ItemStackHandler newInv = new ItemStackHandler(20);
+	public IngredientStackHandler getFilterItemHandler(ItemStack stack) {
+		IngredientStackHandler newInv = new IngredientStackHandler(20);
 		CompoundTag invNBT = stack.getOrCreateTagElement("Items");
 		if (!invNBT.isEmpty())
 			newInv.deserializeNBT(invNBT);
 		return newInv;
 	}
 
-	public ItemStackHandler getFilterOutputHandler(ItemStack stack) {
-		ItemStackHandler newInv = new ItemStackHandler(1);
+	public IngredientStackHandler getFilterOutputHandler(ItemStack stack) {
+		IngredientStackHandler newInv = new IngredientStackHandler(1);
 		CompoundTag invNBT = stack.getOrCreateTagElement("Output");
 		if (!invNBT.isEmpty())
 			newInv.deserializeNBT(invNBT);
@@ -138,28 +143,44 @@ public class IngredientFilterItem extends ListFilterItem {
 		if (itemStack.hasTag() && itemStack.getOrCreateTag().getBoolean("Blacklist"))
 			return new ItemStack[0];
 		
-		return ItemHelper.getNonEmptyStacks(getFilterItemHandler(itemStack)).toArray(ItemStack[]::new);
+		return getFilterItemHandler(itemStack).getNonNullNonFluidItemStacks().toArray(ItemStack[]::new);
 	}
 
-	public ItemStack getFilterOutputItem(ItemStack itemStack) {
-		// if (itemStack.hasTag() && itemStack.getOrCreateTag().getBoolean("Blacklist"))
-		// 	return null;
-		
-		return getFilterOutputHandler(itemStack).getStackInSlot(0);
+	public IngredientStack getFilterOutputItem(ItemStack itemStack) {
+		return getFilterOutputHandler(itemStack).getIngredientStackInSlot(0);
 	}
  
-	public static boolean testDirect(ItemStack filter, ItemStack stack, boolean matchNBT) {
+	public static boolean testDirect(IngredientStack filter, ItemStack stack, boolean matchNBT) {
 		if (matchNBT) {
-			if (PackageItem.isPackage(filter) && PackageItem.isPackage(stack))
-				return doPackagesHaveSameData(filter, stack);
+			if (PackageItem.isPackage(filter.itemStack()) && PackageItem.isPackage(stack))
+				return doPackagesHaveSameData(filter.itemStack(), stack);
 
-			return ItemHandlerHelper.canItemStacksStack(filter, stack);
+			if(filter.isFluid()) return false;
+			else return ItemHandlerHelper.canItemStacksStack(filter.itemStack().copyWithCount(1), stack);
 		}
 
-		if (PackageItem.isPackage(filter) && PackageItem.isPackage(stack))
+		if (PackageItem.isPackage(filter.itemStack()) && PackageItem.isPackage(stack))
 			return true;
 
-		return ItemHelper.sameItem(filter, stack);
+		return !filter.isFluid() && ItemHelper.sameItem(filter.itemStack(), stack);
+	}
+
+	public static boolean testDirect(IngredientStack filter, FluidStack stack, boolean matchNBT) {
+		if (matchNBT) {
+			if(filter.isFluid()) return filter.isFluidEqual(stack);
+			else return false;
+		}
+
+		return filter.isFluid() && filter.getFluid().isSame(stack.getFluid());
+	}
+
+	public static boolean testDirect(FluidStack filter, FluidStack stack, boolean matchNBT) {
+		if(filter.isEmpty()) return false;
+		if (matchNBT) {
+			return filter.isFluidEqual(stack);
+		}
+
+		return filter.getFluid().isSame(stack.getFluid());
 	}
 
 	public static boolean doPackagesHaveSameData(ItemStack a, ItemStack b) {

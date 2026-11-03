@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.network;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +32,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class IngredientFilterScreenPacket extends SimplePacketBase {
 
 	public enum IngOption {
-		INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE;
+		WHITELIST, BLACKLIST, RESPECT_DATA, IGNORE_DATA, UPDATE_FILTER_ITEM, INGR_MATCHANY, INGR_MATCHALL, FILL_RECIPE, RAW_FLUID, ITEM_FLUID;
 	}
 
 	private final IngOption option;
@@ -73,14 +73,40 @@ public class IngredientFilterScreenPacket extends SimplePacketBase {
 			
             if (player.containerMenu instanceof IngredientFilterMenu c){
 				CreatIF.LOGGER.debug("Option is " + option);
-                if (option == IngOption.INGR_MATCHALL)
-					c.matchAny = false;
-				if (option == IngOption.INGR_MATCHANY)
-					c.matchAny = true;
-				if (option == IngOption.FILL_RECIPE){
-					c.applyRecipeData(data);
-
-            	}
+				switch(option){
+					case WHITELIST:
+						c.blacklist = false;
+						break;
+					case BLACKLIST:
+						c.blacklist = true;
+						break;
+					case RESPECT_DATA:
+						c.respectNBT = true;
+						break;
+					case IGNORE_DATA:
+						c.respectNBT = false;
+						break;
+					case UPDATE_FILTER_ITEM:
+						c.ghostInventory.setStackInSlot(
+								data.getInt("Slot"),
+								net.minecraft.world.item.ItemStack.of(data.getCompound("Item")));
+								break;
+					case INGR_MATCHALL:
+						c.matchAny = false;
+						break;
+					case INGR_MATCHANY:
+						c.matchAny = true;
+						break;
+					case FILL_RECIPE:
+						c.applyRecipeData(data);
+						break;
+					case RAW_FLUID:
+						c.useRawFluids = true;
+						break;
+					case ITEM_FLUID:
+						c.useRawFluids = false;
+						break;
+				}
 			}
 
 		});

@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -19,14 +19,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.compat.emi;
 
+import java.text.AttributedCharacterIterator.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.rk_exxec.creatif.CreatIF;
-import com.rk_exxec.creatif.filter.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientFilterMenu;
+import com.rk_exxec.creatif.gui.IngredientStack;
 import com.rk_exxec.creatif.network.IngredientFilterScreenPacket;
 import com.rk_exxec.creatif.util.CreatIFLang;
 import com.rk_exxec.creatif.util.MyPackets;
+import com.simibubi.create.content.logistics.filter.AttributeFilterItem;
+import com.simibubi.create.content.logistics.filter.FilterItemStack.AttributeFilterItemStack;
+import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
 import dev.emi.emi.api.recipe.EmiRecipe;
@@ -34,15 +39,19 @@ import dev.emi.emi.api.recipe.handler.EmiCraftContext;
 import dev.emi.emi.api.recipe.handler.EmiRecipeHandler;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.ItemEmiStack;
+import dev.emi.emi.api.stack.TagEmiIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 
 
 public class IngredientFilterRecipeHandler implements EmiRecipeHandler<IngredientFilterMenu> {
@@ -83,31 +92,10 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 	@Override
 	public boolean craft(EmiRecipe recipe, EmiCraftContext<IngredientFilterMenu> context) {
 		IngredientFilterMenu menu = context.getScreenHandler();
-		List<ItemStack> ingredients = new ArrayList<>();
-		for (EmiIngredient ingredient : recipe.getInputs()) {
-			if (!ingredient.isEmpty() && ingredients.size() < menu.ghostInventory.getSlots())
-			for (EmiStack emiStack : ingredient.getEmiStacks()){
-				ItemStack itemStack;
-				// get bucket of fluid
-				if(emiStack.getKey() instanceof Fluid fluid)
-					itemStack = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, emiStack.getNbt()));
-				else
-					itemStack = emiStack.getItemStack().copyWithCount(1);
-				if (!ingredients.stream().anyMatch(i -> i.is(itemStack.getItemHolder()))) {
-					ingredients.add(itemStack);
-				}
-				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
-			}
-		}
-		EmiStack outStack = recipe.getOutputs().get(0);
-		ItemStack output;
-		if(outStack.getKey() instanceof Fluid fluid)
-			output = FluidUtil.getFilledBucket(new FluidStack(fluid, 1, outStack.getNbt()));
-		else
-			output = outStack.getItemStack().copyWithCount(1);
-
+		List<IngredientStack> ingredients = getRecipeItems(recipe.getInputs(), menu);
+		List<IngredientStack> outputs = getRecipeItems(recipe.getOutputs(), menu);
 		try{
-			menu.applyRecipe(ingredients, output);
+			menu.applyRecipe(ingredients, outputs);
 			MyPackets.getChannel().sendToServer(
 				new IngredientFilterScreenPacket(menu.createRecipeData()));
 		}
@@ -117,4 +105,27 @@ public class IngredientFilterRecipeHandler implements EmiRecipeHandler<Ingredien
 		}
 		return true;
 	}
+
+	private List<IngredientStack> getRecipeItems(List<? extends EmiIngredient> recipeItems, IngredientFilterMenu menu) {
+		List<IngredientStack> ingredients = new ArrayList<>();
+		for (EmiIngredient ingredient : recipeItems) {
+			if (ingredient.isEmpty() || ingredients.size() >= menu.ghostInventory.getSlots()) continue;
+			for (EmiStack emiStack : ingredient.getEmiStacks()){
+				IngredientStack itemStack;
+				if(emiStack.getKey() instanceof Fluid fluid)
+					itemStack = IngredientStack.of(new FluidStack(fluid, 1, emiStack.getNbt()));
+				else
+					itemStack = IngredientStack.of(emiStack.getItemStack().copyWithCount(1));
+
+				// prevent duplicates
+				if (!ingredients.stream().anyMatch(i -> i.equals(itemStack))) {
+					ingredients.add(itemStack);
+				}
+				if(!Screen.hasShiftDown()) break; // if not shift pressed only use first item in variations
+			}
+		}
+		return ingredients;
+	}
+
+
 }

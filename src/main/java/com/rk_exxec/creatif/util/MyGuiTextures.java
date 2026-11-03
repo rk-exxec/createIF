@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -20,10 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.util;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.interfaces.IGuiRenderable;
 
-import net.createmod.catnip.gui.TextureSheetSegment;
 import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.element.ScreenElement;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -31,8 +30,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 
-public enum MyGuiTextures implements ScreenElement, TextureSheetSegment {
-    CREATIF_INGREDIENT_FILTER("ingredient_filter", 214, 134);
+public enum MyGuiTextures implements IGuiRenderable {
+		CREATIF_INGREDIENT_FILTER("ingredient_filter", 214, 134);
     public static final int FONT_COLOR = 0x575F7A;
 
 	public final ResourceLocation location;

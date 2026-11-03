@@ -1,5 +1,5 @@
 /*=====================================================================
-CreatIF- Create: Ingredient Filter 
+CreatIF - Create: Ingredient Filter 
 Adds a new filter type to select basin recipes based on input
 Copyright (C) 2026  rk-exxec
 
@@ -19,28 +19,36 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.rk_exxec.creatif.filter;
 
-import com.rk_exxec.creatif.CreatIF;
-import com.simibubi.create.content.logistics.filter.FilterItemStack;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IngredientStack;
+import com.rk_exxec.creatif.gui.IngredientStackHandler;
+import com.simibubi.create.content.logistics.filter.FilterItem;
+import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.ItemStackHandler;
 
 /**
  * This is also where the magic happens
  * 
  * IngredientFilterItemStack
  */
-public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemStack{ 
+public class IngredientFilterItemStack extends FilterItemStack{ 
 
     public boolean matchAny;
+    public List<IngredientStack> containedItems;
+    public boolean shouldRespectNBT;
+    public boolean isBlacklist;
+    public boolean rawFluid;
 
     // contains output filter item as separate field
-    public FilterItemStack containedOutputItem;
+    public IngredientStack containedOutputItem;
 
 
     public static IngredientFilterItemStack of(ItemStack filter) {
@@ -55,12 +63,31 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
     public IngredientFilterItemStack(ItemStack filter) {
         super(filter);
         boolean defaults = !filter.hasTag();
-        ItemStackHandler output = ((IngredientFilterItem) filter.getItem()).getFilterOutputHandler(filter);
-        containedOutputItem = FilterItemStack.of(output.getStackInSlot(0));
+
+        containedItems = new ArrayList<>();
+        IngredientStackHandler items = ((IngredientFilterItem) filter.getItem()).getFilterItemHandler(filter);
+        for (int i = 0; i < items.getSlots(); i++) {
+            IngredientStack stackInSlot = items.getIngredientStackInSlot(i);
+            if (!stackInSlot.isEmpty())
+                containedItems.add(stackInSlot);
+        }
+
+        shouldRespectNBT = defaults ? false
+            : filter.getTag()
+            .getBoolean("RespectNBT");
+        isBlacklist = defaults ? false
+            : filter.getTag()
+            .getBoolean("Blacklist");
+        IngredientStackHandler output = ((IngredientFilterItem) filter.getItem()).getFilterOutputHandler(filter);
+        containedOutputItem = output.getIngredientStackInSlot(0);
 
         matchAny = defaults ? false
             : filter.getTag()
             .getBoolean("Match Any");
+
+        rawFluid = defaults ? false
+            : filter.getTag()
+            .getBoolean("Raw Fluid");
     }
 
     @Override
@@ -95,10 +122,8 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
                 CreatIF.LOGGER.debug("Item "+ stack + " matches");
             }
         }
-    
-
         for (FluidStack stack : fluidStacks) {
-            CreatIF.LOGGER.debug("Checking list fluid "+ stack);
+            CreatIF.LOGGER.debug("Checking list fluid "+ stack.getDisplayName());
             if(stack.isEmpty()) continue;
             if(testIngredients(world, stack, shouldRespectNBT)){
                 result += 1;
@@ -113,7 +138,7 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
         }
         else{
             CreatIF.LOGGER.debug("Match all");
-            return result == total && total > 0;
+            return result >= total && total > 0; // greater than possible if not using raw fluids and bucket matches both a liquid and bucket
         }
     }
 
@@ -123,21 +148,30 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
 	}
 
 	public boolean testIngredients(Level world, FluidStack stack) {
-		return testIngredients(world, stack, true);
+		return testIngredients(world, stack, false);
 	}
         
 
     public boolean testIngredients(Level world, ItemStack stack, boolean matchNBT) {
-        for (FilterItemStack filterItemStack : containedItems)
-            if (filterItemStack.test(world, stack, shouldRespectNBT))
+        for (IngredientStack filterItemStack : containedItems){
+            if(filterItemStack.isFluid()) continue; // dont even bother testing fluid against item.
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT)) // test nested filter
                 return !isBlacklist;
+            else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
+            else return true;
+        }
         return isBlacklist;
     }
 
     public boolean testIngredients(Level world, FluidStack stack, boolean matchNBT) {
-        for (FilterItemStack filterItemStack : containedItems)
-            if (filterItemStack.test(world, stack, shouldRespectNBT))
+        for (IngredientStack filterItemStack : containedItems){
+            if(!rawFluid && filterItemStack.isFluid()) continue; // ignore fluid stacks if not using raw liquids
+            if ((filterItemStack.getItem() instanceof FilterItem) && IngredientFilterItemStack.of(filterItemStack.itemStack()).test(world, stack, shouldRespectNBT)) //test nested filter
                 return !isBlacklist;
+            else if(!rawFluid && !(IngredientFilterItem.testDirect(filterItemStack.tryGetFluid(world), stack, matchNBT) ^ isBlacklist)) continue;
+            else if(!(IngredientFilterItem.testDirect(filterItemStack, stack, matchNBT) ^ isBlacklist)) continue;
+            else return true;
+        }
         return isBlacklist;
     }
 //#endregion
@@ -147,12 +181,18 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
 // they dont use blacklist or nbt checks
     @Override
     public boolean test(Level world, ItemStack stack, boolean matchNBT) {
-        return containedOutputItem.test(world, stack, false);
+        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack()).test(world, stack, false);
+        if (isEmpty())
+			return true;
+		return IngredientFilterItem.testDirect(containedOutputItem, stack, matchNBT);
     }
 
     @Override
     public boolean test(Level world, FluidStack stack, boolean matchNBT) {
-        return containedOutputItem.test(world, stack, true);
+        if(containedOutputItem.getItem() instanceof FilterItem) return IngredientFilterItemStack.of(containedOutputItem.itemStack()).test(world, stack, false);
+        if (isEmpty())
+			return true;
+		return IngredientFilterItem.testDirect(containedOutputItem, stack, matchNBT);
     }
 //#endregion
 
@@ -161,6 +201,15 @@ public class IngredientFilterItemStack extends FilterItemStack.ListFilterItemSta
 		stackTag.remove("Enchantments");
 		stackTag.remove("AttributeModifiers");
 	}
+
+    // private void resolveFluid(Level world) {
+	// 	if (!fluidExtracted) {
+	// 		fluidExtracted = true;
+	// 		if (GenericItemEmptying.canItemBeEmptied(world, filterItemStack))
+	// 			filterFluidStack = GenericItemEmptying.emptyItem(world, filterItemStack, true)
+	// 				.getFirst();
+	// 	}
+	// }
 }
 // }
 

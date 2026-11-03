@@ -8,7 +8,8 @@
         "BasinOperatingBlockEntityMixin",
         "BasinBlockEntityMixin",
         "AbstractFilterScreenMixin",
-        "FilteringBehaviourMixin"
+        "FilteringBehaviourMixin",
+        "AllGuiTexturesMixin"
     ],
     "client": [
 
