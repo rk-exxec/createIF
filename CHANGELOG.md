@@ -5,6 +5,7 @@
 + toggle-able support for raw fluid filtering
 + german translation
 - fixed liquid filtering
+- redid internal structure for hopefully faster port to 1.21.1 of any features
 
 ## 1.0.4
 
