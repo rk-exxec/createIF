@@ -17,24 +17,19 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =====================================================================*/
 
-package com.rk_exxec.creatif.compat.jei;
+package com.rk_exxec.creatif.compat.emi;
 
-import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.util.MyMenuTypes;
 
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.registration.IRecipeTransferRegistration;
-import net.minecraft.resources.ResourceLocation;
+import dev.emi.emi.api.EmiEntrypoint;
+import dev.emi.emi.api.EmiPlugin;
+import dev.emi.emi.api.EmiRegistry;
 
-@JeiPlugin
-public class CreateIngredientFilterJeiPlugin implements IModPlugin {
+@EmiEntrypoint
+public class CreatIFEmiPlugin implements EmiPlugin {
 	@Override
-	public ResourceLocation getPluginUid() {
-		return ResourceLocation.fromNamespaceAndPath(CreatIF.MODID, "jei_plugin");
-	}
-
-	@Override
-	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-		registration.addUniversalRecipeTransferHandler(new IngredientFilterJeiTransferHandler());
+	public void register(EmiRegistry registry) {
+		registry.addRecipeHandler(MyMenuTypes.INGREDIENT_FILTER.get(),
+			new IngredientFilterRecipeHandler());
 	}
 }
