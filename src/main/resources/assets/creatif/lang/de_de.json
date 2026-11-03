@@ -7,10 +7,12 @@
   "gui.creatif.match_all.description": "Startet Verarbeitung nur wenn _ALLE_ angegebenen Zutaten vorhanden sind.",
   "gui.creatif.match_any": "Mind. eines passt",
   "gui.creatif.match_all": "Alle passen",
-  "gui.creatif.item_fluid.description": "Filtert Flüssigkeiten mit ihren jew. Eimern etc.\n(Standard Create Verhalten)",
+  "gui.creatif.item_fluid.description": "Filtert Flüssigkeiten mit den jew. Eimern etc.\n(Standard Create Verhalten)",
   "gui.creatif.raw_fluid.description": "Filtert Flüssigkeiten nur mit Flüssigkeiten selbst. Eimer, etc., filtern nur das Item selbst.\nBehälter können mit rechtsklick in den Slot 'geleert' werden, um reine Flüssigkeiten zu erhalten.",
-  "gui.creatif.item_fluid": "Flüssigkeitsbehälter",
-  "gui.creatif.raw_fluid": "Reine Flüssigkeiten",
+  "gui.creatif.item_fluid": "Nutze Flüssigkeit aus Behältern",
+  "gui.creatif.raw_fluid": "Erlaube blanke Flüssigkeiten",
+  "gui.creatif.item_fluid_enabled": "Dieses Item filtert Flüssigkeiten.",
+  "gui.creatif.raw_fluid_disabled": "Blanke Flüssigkeiten nicht aktiv. Wird nicht genutzt.",
   "gui.creatif.filter_recipe_mismatch": "Rezept stimmt nicht mit Filter überein.",
   "gui.creatif.filter_ingredient_mismatch": "Zutaten stimmen nicht mit Filter überein."
 }
