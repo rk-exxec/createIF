@@ -91,7 +91,10 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 		respectNBT = tag.getBoolean("RespectNBT");
 		blacklist = tag.getBoolean("Blacklist");
         matchAny = tag.getBoolean("Match Any");
-		useRawFluids = tag.getBoolean("Raw Fluid");
+		if(tag.contains("Raw Fluid"))
+			useRawFluids = tag.getBoolean("Raw Fluid");
+		else
+			useRawFluids = true;
 
     }
 
