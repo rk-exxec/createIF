@@ -1,0 +1,18 @@
+{
+  "item.creatif.ingredient_filter": "Filtro de Ingredientes",
+  "item.creatif.ingredient_filter.tooltip.behaviour1": "Abre la _interfaz de configuración_.",
+  "item.creatif.ingredient_filter.tooltip.condition1": "Al hacer clic derecho",
+  "item.creatif.ingredient_filter.tooltip.summary": "Compara los _ingredientes_ con el _contenido de la cuenca_. Se puede usar en las _ranuras de filtro_ de los componentes de Create mod. La ranura de salida es opcional.",
+  "gui.creatif.match_any.description": "Comenzará a procesar la receta si uno o más de los objetos especificados están en la cuenca.",
+  "gui.creatif.match_all.description": "Comenzará a procesar la receta si todos los objetos especificados están en la cuenca.",
+  "gui.creatif.match_any": "Coincidir con cualquiera",
+  "gui.creatif.match_all": "Coincidir con todos",
+  "gui.creatif.item_fluid.description": "Filtra los fluidos con su respectivo contenedor.\n(comportamiento por defecto de Create mod)",
+  "gui.creatif.raw_fluid.description": "Filtra los fluidos directamente. Los contenedores ahora solo filtran el objeto especificado.\nLos contenedores se pueden vaciar en una ranura haciendo clic derecho para obtener el fluido directamente.",
+  "gui.creatif.item_fluid": "Usa de contenedores de fluidos."
+  "gui.creatif.raw_fluid": "Usa fluidos en bruto. ",
+  "gui.creatif.item_fluid_enabled": "¡Este objeto coincidirá con un ingrediente _líquido_ debido a la configuración seleccionada!",
+  "gui.creatif.raw_fluid_disabled": "Los fluidos en bruto están desactivados, esta ranura será ignorada.",
+  "gui.creatif.filter_recipe_mismatch": "La receta no coincide con el filtro.",
+  "gui.creatif.filter_ingredient_mismatch": "Los objetos no coinciden con el filtro."
+}

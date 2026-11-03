@@ -3,9 +3,9 @@
 ## 1.1.0
 
 + toggle-able support for raw fluid filtering
-+ translations: italian (@BigBarza), german (me)
-- fixed liquid filtering
-- redid internal structure for hopefully faster port to 1.21.1 of any features
++ translations: italian (@BigBarza), spanish (@Danymike), german (me)
+* fixed liquid filtering
+* redid internal structure for hopefully faster port to 1.21.1 of any features
 
 ## 1.0.4
 
