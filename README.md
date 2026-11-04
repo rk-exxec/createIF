@@ -11,12 +11,12 @@ Good intentions, I like it a lot, prevents having to rebuild parts of the factor
 
 However, Create seems to not have had that in mind when designing basin processing.
 
-## The solution: New filter type!
+## The solution: New filter type! <img alt="alt: filter item" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/icon.png" width="64" style="vertical-align:bottom"> 
 
-<img alt="alt: empty filter ui" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/blank_filter.png" width="400">  <img alt="alt: filter item" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/icon.png" width="400"> 
+<img alt="alt: empty filter ui" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/blank_filter.png" width="400"> 
 
 Allows you to specify items that need to be in a basin before it may start on the left.  
-You can also use buckets/fluids to require that specific liquids are present.  
+You can also use buckets/fluids to require that specific liquids are present.  From version 1.1.0 onward, you can even use fluids directly without containers, this behavior can be toggled with the 4th button. Containers can be emptied into the slots via right click to get the fluid.  
 Optionally you can specify the target recipe in the slot on the right.
 
 **Supports adding recipes via \[+\] Button in EMI or JEI!**
@@ -34,7 +34,7 @@ However, with my filter, you can stop the basin if that happens.
 <img alt="alt: filter with full recipe" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe.png" width="400">  <img alt="alt: filter with only 4th item and match any config" src="https://raw.githubusercontent.com/rk-exxec/createIF/refs/heads/master/images/filter_with_recipe_any.png" width="400"> 
 
 Both of the above prevent processing until the 4th ingredient is available.  
-Note the rightmost pair of buttons:
+Note the 3rd button:
 
 *   MatchAny allows processing if any of the ingredients specified in the filter is available.
 *   MatchAll waits until ALL are available.
@@ -48,4 +48,12 @@ which produces following interactions:
 *   MatchAll: Checks any ONE item in the nested filter is available. Like:  
     `OuterFilter[Item1 AND Item2 AND InnerFilter(Item3 OR Item4)]`
 
+Attribute filters can be nested to allow entire tags, like every wood log etc.
+
+
 NOTE: You cannot nest Ingredient filters!
+
+## JEI / EMI:
+
+*   supports adding recipe ingredients via \[+\] button in JEI / EMI
+*   holding shift while adding will add all possible ingredient variants (like all wood types allowed)
