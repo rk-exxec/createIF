@@ -5,14 +5,14 @@
   "item.creatif.ingredient_filter.tooltip.summary": "_Confronta gli ingredienti_ con i _contenuti della vasca_. Può essere usato negli _Slot Filtro_ dei componenti di Create. Lo slot per il risultato è facoltativo.",
   "gui.creatif.match_any.description": "Inizierà a processare la ricetta se uno o più oggetti specificati sono nella vasca.",
   "gui.creatif.match_all.description": "Inizierà a processare la ricetta se tutti gli oggetti specificati sono nella vasca.",
-  "gui.creatif.match_any": "Combacia Qualsiasi",
-  "gui.creatif.match_all": "Combacia Tutti",
+  "gui.creatif.match_any": "Corrisponde Qualsiasi",
+  "gui.creatif.match_all": "Corrisponde Tutti",
   "gui.creatif.item_fluid.description": "Filtra i liquidi con il rispettivo contenitore.\n(Comportamento normale di Create)",
-  "gui.creatif.raw_fluid.description": "Filtra i liquidi solo con in fluido il sè. I contenitori adesso filtrano solo l'oggetto.\nI contenitori possono essere svuotati in uno slot con clic destro per ottenere il liquido grezzo.",
-  "gui.creatif.item_fluid": "Usa contenitori di liquidi",
-  "gui.creatif.raw_fluid": "Usa liquidi grezzi",
-  "gui.creatif.item_fluid_enabled": "Questo oggetto combacerà con un ingrediente _liquido_ date le impostazioni selezionate!",
-  "gui.creatif.raw_fluid_disabled": "I liquidi grezzi sono disabilitati, questo slot non sarà considerato.",
+  "gui.creatif.raw_fluid.description": "Filtra i liquidi solo con il fluido il sè. I contenitori adesso filtrano solo l'oggetto.\nI contenitori possono essere svuotati in uno slot con clic destro per ottenerne il contenuto.",
+  "gui.creatif.item_fluid": "Liquidi: Filtro Contenitori",
+  "gui.creatif.raw_fluid": "Liquidi: Filtro Diretto",
+  "gui.creatif.item_fluid_enabled": "Questo oggetto corrisponderà ad un ingrediente _liquido_ date le impostazioni selezionate!",
+  "gui.creatif.raw_fluid_disabled": "Usare i liquidi direttamente è disattivato, questo slot non sarà considerato.",
   "gui.creatif.filter_recipe_mismatch": "La ricetta non entra nel filtro.",
-  "gui.creatif.filter_ingredient_mismatch": "Gli oggetti con combaciano con il filtro."
+  "gui.creatif.filter_ingredient_mismatch": "Gli oggetti con corrispondono al filtro."
 }
