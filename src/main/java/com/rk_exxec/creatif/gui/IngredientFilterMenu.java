@@ -52,7 +52,7 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 
 	private final int PLAYER_INV_SLOTS = 36;
 	public final int INPUT_INV_SIZE = 20;
-	public final int OUTPUT_INV_SIZE = 0;
+	public final int OUTPUT_INV_SIZE = 1;
 
 	public final int INV_OFFSET_X = 38;
 	public final int INV_OFFSET_Y = 134+22;
@@ -269,7 +269,7 @@ public class IngredientFilterMenu extends MenuBase<ItemStack> implements ICleara
 
 	@Override
 	public boolean canDragTo(Slot slotIn) {
-		return slotIn.container == playerInventory;
+		return slotIn.container == playerInventory || slotIn instanceof IngredientSlot;
 	}
 
 	@Override
