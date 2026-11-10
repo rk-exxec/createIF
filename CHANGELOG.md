@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
++ fixed drag-drop from EMI/JEI (was broken since new backend didn't come with builtin support)
+
 ## 1.1.0
 
 + toggle-able support for raw fluid filtering

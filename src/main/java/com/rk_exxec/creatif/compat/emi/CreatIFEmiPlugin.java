@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.compat.emi;
 
 import com.rk_exxec.creatif.util.MyMenuTypes;
+import com.rk_exxec.creatif.gui.IngredientFilterScreen;
 
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
@@ -31,5 +32,7 @@ public class CreatIFEmiPlugin implements EmiPlugin {
 	public void register(EmiRegistry registry) {
 		registry.addRecipeHandler(MyMenuTypes.INGREDIENT_FILTER.get(),
 			new IngredientFilterRecipeHandler());
+		registry.addDragDropHandler(IngredientFilterScreen.class,
+			new IngredientFilterEmiDragDropHandler());
 	}
 }

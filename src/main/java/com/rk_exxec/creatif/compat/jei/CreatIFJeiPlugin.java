@@ -20,10 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.rk_exxec.creatif.compat.jei;
 
 import com.rk_exxec.creatif.CreatIF;
+import com.rk_exxec.creatif.gui.IngredientFilterScreen;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import net.minecraft.resources.ResourceLocation;
 
 @JeiPlugin
@@ -36,5 +38,11 @@ public class CreatIFJeiPlugin implements IModPlugin {
 	@Override
 	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
 		registration.addUniversalRecipeTransferHandler(new IngredientFilterJeiTransferHandler());
+	}
+
+	@Override
+	public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+		registration.addGhostIngredientHandler(IngredientFilterScreen.class,
+			new IngredientFilterJeiGhostHandler());
 	}
 }
