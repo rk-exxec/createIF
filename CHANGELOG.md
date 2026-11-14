@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
++ identical filter items can now stack, replicating default create behavior
+
 ## 1.1.1
 
 + fixed drag-drop from EMI/JEI (was broken since new backend didn't come with builtin support)

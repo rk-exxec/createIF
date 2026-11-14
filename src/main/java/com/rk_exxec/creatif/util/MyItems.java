@@ -34,7 +34,9 @@ public class MyItems {
 		REGISTRATE.setCreativeTab(AllCreativeModeTabs.BASE_CREATIVE_TAB);
 	}
 
-    public static final ItemEntry<IngredientFilterItem> INGREDIENT_FILTER_ITEM = REGISTRATE.item("ingredient_filter", IngredientFilterItem::new).properties(p -> p.stacksTo(1))
+    public static final ItemEntry<IngredientFilterItem> INGREDIENT_FILTER_ITEM = 
+		REGISTRATE.item("ingredient_filter", IngredientFilterItem::new)
+		.properties(p -> p.stacksTo(64))
 		.register();
 
     
